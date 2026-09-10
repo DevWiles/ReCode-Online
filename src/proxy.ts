@@ -5,6 +5,14 @@ import { SESSION_COOKIE, verifySessionToken } from "@/lib/session";
 // Reachable without a session
 const PUBLIC_PATHS = ["/login"];
 
+/**
+ * A relative Location header. NextResponse.redirect() needs an absolute URL,
+ * and behind nginx Next builds that from its own listen address, which sends
+ * visitors to https://localhost:3200. Relative redirects sidestep it entirely.
+ */
+const redirectTo = (path: string) =>
+  new NextResponse(null, { status: 307, headers: { Location: path } });
+
 export default async function proxy(request: NextRequest) {
   const { pathname, search } = request.nextUrl;
 
@@ -16,21 +24,17 @@ export default async function proxy(request: NextRequest) {
   );
 
   if (!session && !isPublic) {
-    const url = request.nextUrl.clone();
-    url.pathname = "/login";
-    url.search = "";
     // Come back to whatever was originally asked for
-    if (pathname !== "/") url.searchParams.set("next", `${pathname}${search}`);
+    const next =
+      pathname === "/"
+        ? ""
+        : `?next=${encodeURIComponent(`${pathname}${search}`)}`;
 
-    return NextResponse.redirect(url);
+    return redirectTo(`/login${next}`);
   }
 
   if (session && isPublic) {
-    const url = request.nextUrl.clone();
-    url.pathname = "/home";
-    url.search = "";
-
-    return NextResponse.redirect(url);
+    return redirectTo("/home");
   }
 
   // The root layout renders onboarding when no user exists; it needs to know
