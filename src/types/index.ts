@@ -39,6 +39,20 @@ export interface UpdateUserProps {
   dailyReviewLimit: number;
 }
 
+// leetcode fetch interfaces
+export interface LeetCodeTopicTag {
+  name: string;
+  translatedName?: string | null;
+}
+
+export interface LeetCodeQuestionData {
+  questionFrontendId: string;
+  title: string;
+  translatedTitle?: string | null;
+  difficulty: string;
+  topicTags: LeetCodeTopicTag[];
+}
+
 // login interfaces
 export interface LoginProps {
   username: string;

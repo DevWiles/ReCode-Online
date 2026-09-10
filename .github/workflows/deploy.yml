@@ -64,6 +64,8 @@ jobs:
           mkdir -p payload/node_modules/.prisma payload/node_modules/@prisma
           cp -r node_modules/.prisma/. payload/node_modules/.prisma/
           cp -r node_modules/@prisma/client payload/node_modules/@prisma/client
+          # Kept external from the bundle, so it has to be copied in whole
+          cp -r node_modules/playwright-core payload/node_modules/playwright-core
           rm -f payload/prisma/dev.db payload/prisma/ci.db payload/ci.db
           # Next copies the repo .env into the bundle; it would shadow the
           # DATABASE_URL that systemd injects and silently use an empty database
