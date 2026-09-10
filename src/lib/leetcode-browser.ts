@@ -51,15 +51,21 @@ export const fetchQuestionViaBrowser = async (
     return null;
   }
 
-  const { chromium } = await import("playwright-core");
-
-  const browser = await chromium.launch({
-    executablePath,
-    headless: true,
-    args: ["--no-sandbox", "--disable-dev-shm-usage", "--disable-gpu"],
-  });
+  // Everything below has to stay inside the try: a failure to load the module
+  // or to start Chrome must degrade to the next source, not reject the action
+  let browser: Awaited<
+    ReturnType<typeof import("playwright-core").chromium.launch>
+  > | null = null;
 
   try {
+    const { chromium } = await import("playwright-core");
+
+    browser = await chromium.launch({
+      executablePath,
+      headless: true,
+      args: ["--no-sandbox", "--disable-dev-shm-usage", "--disable-gpu"],
+    });
+
     const page = await browser.newPage({ userAgent: BROWSER_UA });
 
     // Nothing visual is needed, and skipping it roughly halves the load time
@@ -134,6 +140,6 @@ export const fetchQuestionViaBrowser = async (
     console.error(`LeetCode browser fetch failed for ${titleSlug}:`, error);
     return null;
   } finally {
-    await browser.close().catch(() => {});
+    await browser?.close().catch(() => {});
   }
 };

@@ -35,14 +35,21 @@ export const PlatformSelector = ({
     if (!url.trim()) return;
     setIsLoading(true);
 
-    const result = await fetchLeetCodeQuestionAction(url);
+    try {
+      const result = await fetchLeetCodeQuestionAction(url);
 
-    setIsLoading(false);
-    if (result.success && result.data) {
-      toast.success('Fetched successfully!');
-      onComplete(result.data as Partial<EditorFormData>);
-    } else {
-      toast.error(result.error || 'Failed to fetch question');
+      if (result.success && result.data) {
+        toast.success('Fetched successfully!');
+        onComplete(result.data as Partial<EditorFormData>);
+      } else {
+        toast.error(result.error || 'Failed to fetch question');
+      }
+    } catch (error) {
+      // Without this the button would spin forever on a server-side throw
+      console.error('LeetCode fetch failed:', error);
+      toast.error('Failed to fetch question');
+    } finally {
+      setIsLoading(false);
     }
   };
 
