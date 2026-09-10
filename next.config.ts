@@ -1,6 +1,8 @@
 import type { NextConfig } from "next";
 
 const nextConfig: NextConfig = {
+  // Ship a self-contained server bundle so the 2-core box never runs a build
+  output: "standalone",
   async redirects() {
     return [
       {

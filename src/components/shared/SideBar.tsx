@@ -6,6 +6,7 @@ import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import { cn } from '@/lib/utils';
 import { useUserStore } from '@/store/useUserStore';
+import { logout } from '@/actions/auth';
 
 import { SIDEBAR_NAV } from '@/constants';
 import {
@@ -15,7 +16,7 @@ import {
   arrowVariants,
 } from '@/animations/sidebarAnimations';
 
-import { ChevronLeft, Settings2 } from 'lucide-react';
+import { ChevronLeft, Settings2, LogOut } from 'lucide-react';
 
 const SideBar = () => {
   const { uiLanguage, setIsSettingModalOpen } = useUserStore();
@@ -151,6 +152,29 @@ const SideBar = () => {
                     </motion.div>
                   </button>
                 )}
+
+                {/* Sign out */}
+                {section.category === 'System' && (
+                  <button
+                    onClick={() => logout()}
+                    className="relative flex items-center h-11 rounded-xl transition-all duration-300 group overflow-hidden text-gray-500 hover:text-red-500 hover:bg-red-50/50 w-full cursor-pointer"
+                  >
+                    <div className="flex items-center justify-center min-w-14 z-10">
+                      <LogOut
+                        size={22}
+                        className="transition-all duration-300 group-hover:text-red-500"
+                      />
+                    </div>
+                    <motion.div
+                      variants={textVariants}
+                      className="flex items-center overflow-hidden whitespace-nowrap z-10"
+                    >
+                      <span className="text-sm ml-1 font-medium transition-all">
+                        {uiLanguage === 'en' ? 'Sign out' : '退出登录'}
+                      </span>
+                    </motion.div>
+                  </button>
+                )}
               </div>
             </div>
           ))}
@@ -199,6 +223,13 @@ const SideBar = () => {
           className="flex flex-col items-center justify-center w-full h-full p-2 text-gray-400 hover:text-gray-600"
         >
           <Settings2 size={24} />
+        </button>
+
+        <button
+          onClick={() => logout()}
+          className="flex flex-col items-center justify-center w-full h-full p-2 text-gray-400 hover:text-red-500"
+        >
+          <LogOut size={24} />
         </button>
       </nav>
     </>

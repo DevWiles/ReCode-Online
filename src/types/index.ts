@@ -39,6 +39,47 @@ export interface UpdateUserProps {
   dailyReviewLimit: number;
 }
 
+// login interfaces
+export interface LoginProps {
+  username: string;
+  password: string;
+}
+
+// Discriminated result so the form can map error codes onto localized text
+export type LoginResult =
+  | { ok: true; error?: never }
+  | { ok?: never; error: "EMPTY_FIELDS" | "BAD_CREDENTIALS" | "RATE_LIMITED" };
+
+// login log interfaces
+export type LoginLogFilter = "all" | "success" | "failed";
+
+export interface LoginLogRow {
+  id: string;
+  username: string;
+  success: boolean;
+  reason: string | null;
+  ip: string;
+  userAgent: string;
+  browser: string;
+  os: string;
+  device: string;
+  // Preformatted on the server to keep client and server renders identical
+  time: string;
+}
+
+export interface LoginLogsClientProps {
+  uiLanguage: "en" | "zh";
+  rows: LoginLogRow[];
+  filter: LoginLogFilter;
+  page: number;
+  pageCount: number;
+  total: number;
+  successCount: number;
+  failureCount: number;
+  ipCount: number;
+  currentIp: string;
+}
+
 // register interfaces
 export interface registerUserProps {
   username: string;

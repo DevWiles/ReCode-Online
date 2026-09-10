@@ -1,0 +1,137 @@
+name: Deploy ReCode
+
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+concurrency:
+  group: deploy
+  cancel-in-progress: false
+
+env:
+  SERVER_HOST: SERVER_HOST_REDACTED
+  SERVER_USER: recode
+  DEPLOY_PATH: /home/recode
+  SERVICE: recode
+  APP_PORT: "3200"
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: "22"
+          cache: npm
+
+      - name: Install dependencies
+        run: npm ci --no-audit --no-fund
+
+      # An out-of-date client silently ignores DATABASE_URL and opens the wrong
+      # SQLite file, so regenerate it explicitly from the current schema
+      - name: Generate Prisma client
+        run: npx prisma generate
+
+      # The root layout queries the database while pages are being generated,
+      # so the build needs a schema-shaped SQLite file to talk to
+      - name: Prepare build-time database
+        env:
+          DATABASE_URL: file:${{ github.workspace }}/ci.db
+        run: npx prisma migrate deploy
+
+      - name: Build
+        env:
+          DATABASE_URL: file:${{ github.workspace }}/ci.db
+        run: npm run build
+
+      # Next traces a minimal node_modules into .next/standalone; static assets
+      # and the Prisma engine have to be placed next to it by hand
+      - name: Assemble deploy payload
+        run: |
+          rm -rf payload && mkdir -p payload
+          cp -r .next/standalone/. payload/
+          mkdir -p payload/.next
+          cp -r .next/static payload/.next/static
+          [ -d public ] && cp -r public payload/public
+          cp -r prisma payload/prisma
+          # Guarantee the query engine ships even if tracing misses it
+          mkdir -p payload/node_modules/.prisma payload/node_modules/@prisma
+          cp -r node_modules/.prisma/. payload/node_modules/.prisma/
+          cp -r node_modules/@prisma/client payload/node_modules/@prisma/client
+          rm -f payload/prisma/dev.db payload/prisma/ci.db payload/ci.db
+          # Next copies the repo .env into the bundle; it would shadow the
+          # DATABASE_URL that systemd injects and silently use an empty database
+          rm -f payload/.env payload/.env.*
+          du -sh payload
+
+      - name: Guard (needs SSH_PRIVATE_KEY)
+        id: guard
+        run: |
+          if [ -n "${{ secrets.SSH_PRIVATE_KEY }}" ]; then
+            echo "go=1" >> "$GITHUB_OUTPUT"
+          else
+            echo "::warning::未配置 Secret SSH_PRIVATE_KEY，跳过部署。"
+            echo "go=0" >> "$GITHUB_OUTPUT"
+          fi
+
+      - name: Setup SSH
+        if: steps.guard.outputs.go == '1'
+        run: |
+          mkdir -p ~/.ssh
+          printf '%s\n' "${{ secrets.SSH_PRIVATE_KEY }}" > ~/.ssh/deploy_key
+          chmod 600 ~/.ssh/deploy_key
+          ssh-keyscan -H "$SERVER_HOST" >> ~/.ssh/known_hosts 2>/dev/null
+
+      - name: Rsync payload to staging
+        if: steps.guard.outputs.go == '1'
+        run: |
+          rsync -az --delete \
+            -e "ssh -i ~/.ssh/deploy_key -o StrictHostKeyChecking=no" \
+            payload/ "$SERVER_USER@$SERVER_HOST:$DEPLOY_PATH/staging/"
+
+      - name: Migrate, swap in and restart
+        if: steps.guard.outputs.go == '1'
+        run: |
+          ssh -i ~/.ssh/deploy_key -o StrictHostKeyChecking=no \
+            "$SERVER_USER@$SERVER_HOST" 'bash -se' <<'REMOTE'
+          set -euo pipefail
+          cd /home/recode
+
+          # Apply migrations before the new code starts serving
+          set -a; . /home/recode/app.env; set +a
+          node tools/node_modules/prisma/build/index.js migrate deploy \
+            --schema /home/recode/staging/prisma/schema.prisma
+
+          # Atomic swap, keeping the previous release for a quick rollback
+          rm -rf app.prev
+          [ -d app ] && mv app app.prev
+          cp -a staging app
+
+          sudo -n /usr/bin/systemctl restart recode
+          REMOTE
+
+      - name: Wait until healthy
+        if: steps.guard.outputs.go == '1'
+        run: |
+          ssh -i ~/.ssh/deploy_key -o StrictHostKeyChecking=no \
+            "$SERVER_USER@$SERVER_HOST" 'bash -se' <<'REMOTE'
+          set -euo pipefail
+          for i in $(seq 1 60); do
+            code=$(curl -s -o /dev/null -w '%{http_code}' "http://127.0.0.1:3200/login" || true)
+            if [ "$code" = "200" ]; then
+              echo "healthy after ${i}s (/login -> 200)"
+              exit 0
+            fi
+            sleep 1
+          done
+          echo "::error::服务在 60 秒内未就绪"
+          systemctl status recode --no-pager -l | head -20 || true
+          tail -40 /home/recode/logs/recode.err.log || true
+          exit 1
+          REMOTE

@@ -1,11 +1,14 @@
 // prisma/schema.prisma
 generator client {
   provider = "prisma-client-js"
+  // debian target is what the CI runner builds for and what the server runs
+  binaryTargets = ["native", "debian-openssl-3.0.x"]
 }
 
 datasource db {
   provider = "sqlite"
-  url      = "file:./dev.db"
+  // Local dev resolves to prisma/dev.db; production points at an absolute path
+  url      = env("DATABASE_URL")
 }
 
 // -----------------------------------------------------------------------------
@@ -15,6 +18,8 @@ model User {
   id            String     @id @default(cuid())
   // Username used for login and display
   username      String     @unique
+  // Scrypt password hash in "scrypt$N$r$p$salt$hash" format, null = login not configured yet
+  passwordHash  String?
   // Avatar URL, supports external links or local paths
   avatar        String?
   
@@ -138,4 +143,32 @@ model Submission {
 
   createdAt  DateTime @default(now())
   updatedAt  DateTime @updatedAt
+}
+// -----------------------------------------------------------------------------
+// LoginLog: Audit trail of every login attempt (successful or not)
+// -----------------------------------------------------------------------------
+model LoginLog {
+  id        String   @id @default(cuid())
+
+  // The username that was typed in, kept even when no such user exists
+  username  String
+  // Whether the credentials were accepted
+  success   Boolean  @default(false)
+  // Why the attempt was rejected: BAD_PASSWORD, NO_SUCH_USER, RATE_LIMITED, ...
+  reason    String?
+
+  // Network origin. Behind a reverse proxy this comes from X-Forwarded-For
+  ip        String   @default("unknown")
+
+  // Device fingerprint, parsed from the User-Agent header
+  userAgent String   @default("")
+  browser   String   @default("Unknown")
+  os        String   @default("Unknown")
+  // Desktop / Mobile / Tablet / Bot / Unknown
+  device    String   @default("Unknown")
+
+  createdAt DateTime @default(now())
+
+  @@index([createdAt])
+  @@index([ip])
 }

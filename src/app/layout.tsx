@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import { headers } from "next/headers";
 import "@/styles/globals.css";
 
 import { prisma } from "@/lib/db";
@@ -17,12 +18,19 @@ export default async function RootLayout({
 }: Readonly<{
   children: React.ReactNode;
 }>) {
-  const user = await prisma.user.findFirst();
+  // The middleware forwards the path so the login screen is never replaced by
+  // onboarding while nobody is signed in
+  const pathname = (await headers()).get("x-pathname") ?? "";
+  const isAuthRoute = pathname.startsWith("/login");
+
+  const user = isAuthRoute ? null : await prisma.user.findFirst();
 
   return (
     <html lang="zh-CN">
       <body className="antialiased bg-gray-50 text-gray-900 selection:bg-[#ffa116] selection:text-white">
-        {user ? (
+        {isAuthRoute ? (
+          children
+        ) : user ? (
           <>
             <DashboardStateInitializer user={user} />
             {children}
