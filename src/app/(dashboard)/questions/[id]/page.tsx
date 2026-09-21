@@ -19,7 +19,7 @@ export default async function QuestionEditPage({
 
   const { id } = await params;
 
-  // get the recent submission
+  // every solution, in the order they appear in the list
   const progress = await prisma.progress.findFirst({
     where: {
       id: id,
@@ -28,8 +28,7 @@ export default async function QuestionEditPage({
     include: {
       problem: true,
       submissions: {
-        orderBy: { createdAt: "desc" },
-        take: 1,
+        orderBy: [{ sortOrder: "asc" }, { createdAt: "asc" }],
       },
     },
   });
@@ -45,10 +44,13 @@ export default async function QuestionEditPage({
     // the data in database is "DP,Array", tansform to array
     tags: progress.problem.tags ? progress.problem.tags.split(",") : [],
     link: progress.problem.url || "",
-    language: progress.submissions[0]?.language || user.preferredLang,
-    code: progress.submissions[0]?.code || "",
+    solutions: progress.submissions.map((submission) => ({
+      id: submission.id,
+      label: submission.label,
+      language: submission.language || user.preferredLang,
+      code: submission.code,
+    })),
     masteryLevel: progress.masteryLevel,
-    notes: progress.notes || "",
   };
 
   return (

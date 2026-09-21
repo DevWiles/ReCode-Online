@@ -88,10 +88,9 @@ export const TRANSLATIONS = {
       editBtn: '编辑',
       masteryLevel: '掌握等级',
       updatedAt: '更新于',
-      solutionCode: '解题代码',
+      solutionCode: '题解',
       noCode: '// 暂无代码记录',
-      myNotes: '我的笔记',
-      noNotes: '暂无笔记内容。',
+      noSolutions: '还没有题解记录。',
       notAvailable: '无',
     },
     editorHeader: {
@@ -106,9 +105,14 @@ export const TRANSLATIONS = {
       continueEditing: '继续编辑',
       confirmExit: '确定离开',
     },
-    codeSection: {
-      title: '代码',
+    solutionSection: {
+      title: '题解',
+      add: '添加题解',
+      untitled: '题解 {{index}}',
+      labelPlaceholder: '备注名，例如：双指针',
       languagePlaceholder: '选择语言',
+      remove: '删除这份题解',
+      empty: '还没有题解，点这里写第一份。',
     },
     metaSidebar: {
       difficulty: '难度级别',
@@ -121,12 +125,6 @@ export const TRANSLATIONS = {
       masteryNewbie: '新手',
       masteryMaster: '专家',
       problemLink: '题目链接',
-    },
-    markdownSection: {
-      previewTitle: '实时预览',
-      inputTitle: 'Markdown 编辑',
-      previewPlaceholder: '开始书写内容以查看预览...',
-      inputPlaceholder: '# 笔记内容...',
     },
     reviewHeader: {
       title: '每日复习',
@@ -276,10 +274,9 @@ export const TRANSLATIONS = {
       editBtn: 'Edit',
       masteryLevel: 'Mastery Level',
       updatedAt: 'Updated',
-      solutionCode: 'Solution Code',
+      solutionCode: 'Solutions',
       noCode: '// No code recorded.',
-      myNotes: 'My Notes',
-      noNotes: 'No notes added.',
+      noSolutions: 'No solutions recorded yet.',
       notAvailable: 'N/A',
     },
     editorHeader: {
@@ -295,9 +292,14 @@ export const TRANSLATIONS = {
       continueEditing: 'Keep editing',
       confirmExit: 'Discard',
     },
-    codeSection: {
-      title: 'Solution',
+    solutionSection: {
+      title: 'Solutions',
+      add: 'Add solution',
+      untitled: 'Solution {{index}}',
+      labelPlaceholder: 'Name, e.g. two pointers',
       languagePlaceholder: 'Language',
+      remove: 'Remove this solution',
+      empty: 'No solutions yet — click here to write the first one.',
     },
     metaSidebar: {
       difficulty: 'Difficulty',
@@ -310,12 +312,6 @@ export const TRANSLATIONS = {
       masteryNewbie: 'Newbie',
       masteryMaster: 'Master',
       problemLink: 'Problem Link',
-    },
-    markdownSection: {
-      previewTitle: 'Live Preview',
-      inputTitle: 'Markdown Input',
-      previewPlaceholder: 'Start writing to see preview...',
-      inputPlaceholder: '# Notes...',
     },
     reviewHeader: {
       title: 'Daily Review',
@@ -468,8 +464,7 @@ export type TranslationKeys =
   | 'previewSheet.updatedAt'
   | 'previewSheet.solutionCode'
   | 'previewSheet.noCode'
-  | 'previewSheet.myNotes'
-  | 'previewSheet.noNotes'
+  | 'previewSheet.noSolutions'
   | 'previewSheet.notAvailable'
   | 'editorHeader.cancel'
   | 'editorHeader.save'
@@ -481,8 +476,13 @@ export type TranslationKeys =
   | 'editorHeader.cancelDescription'
   | 'editorHeader.continueEditing'
   | 'editorHeader.confirmExit'
-  | 'codeSection.title'
-  | 'codeSection.languagePlaceholder'
+  | 'solutionSection.title'
+  | 'solutionSection.add'
+  | 'solutionSection.untitled'
+  | 'solutionSection.labelPlaceholder'
+  | 'solutionSection.languagePlaceholder'
+  | 'solutionSection.remove'
+  | 'solutionSection.empty'
   | 'metaSidebar.difficulty'
   | 'metaSidebar.difficultyPlaceholder'
   | 'metaSidebar.tags'
@@ -493,10 +493,6 @@ export type TranslationKeys =
   | 'metaSidebar.masteryNewbie'
   | 'metaSidebar.masteryMaster'
   | 'metaSidebar.problemLink'
-  | 'markdownSection.previewTitle'
-  | 'markdownSection.inputTitle'
-  | 'markdownSection.previewPlaceholder'
-  | 'markdownSection.inputPlaceholder'
   | 'reviewHeader.title'
   | 'reviewHeader.descriptionWithCount'
   | 'reviewHeader.descriptionEmpty'

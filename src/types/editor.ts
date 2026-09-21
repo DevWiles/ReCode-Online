@@ -1,3 +1,12 @@
+export interface EditorSolution {
+  // A row that has never been saved has no database id yet
+  id?: string;
+  // Short name shown in the list; empty falls back to "Solution N"
+  label: string;
+  language: string;
+  code: string;
+}
+
 export interface EditorFormData {
   // Problem
   pid: string;
@@ -6,13 +15,11 @@ export interface EditorFormData {
   tags: string[];
   link: string;
 
-  // Submission
-  language: string;
-  code: string;
+  // Submissions, in list order
+  solutions: EditorSolution[];
 
   // Progress
   masteryLevel: number;
-  notes: string;
 }
 
 export interface MetaSidebarProps {
@@ -40,8 +47,8 @@ export interface EditorHeaderProps {
   onCancel: () => void;
 }
 
-export interface CodeSectionProps {
-  code: string;
-  language: string;
-  onUpdate: (field: string, value: any) => void;
+export interface SolutionListProps {
+  solutions: EditorSolution[];
+  preferredLang: string;
+  onChange: (solutions: EditorSolution[]) => void;
 }

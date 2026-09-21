@@ -93,8 +93,6 @@ model Progress {
   // Learning State
   // Current status: Todo, Solved, Reviewing (could be used for graduation mechanism)
   status       String   @default("Todo")
-  // Notes specifically for this problem
-  notes        String?
 
   // SRS Algorithm part, drives the "Today's Tasks" on the Dashboard
   // The most recent self-assessed mastery score (0-5)
@@ -134,10 +132,14 @@ model Submission {
   progress   Progress @relation(fields: [progressId], references: [id])
   
   // Code Content
+  // Short name the user gives this solution, e.g. "two pointers". Empty = fall back to "Solution N"
+  label      String   @default("")
   // Programming language identifier (e.g., "typescript", "python", "cpp")
   language   String
   // The actual source code text
   code       String
+  // Position in the solution list, ascending
+  sortOrder  Int      @default(0)
   // Whether this is used as the default display version for the problem
   isMain     Boolean  @default(false)
 

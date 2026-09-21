@@ -1,3 +1,5 @@
+import { SolutionData } from "@/types";
+
 export interface ReviewTask {
   id: string;
   questionId: string;
@@ -7,12 +9,8 @@ export interface ReviewTask {
   slug: string | null;
   masteryLevel: number;
   lastReviewDate: string | null;
-  notes?: string | null;
   tags?: string;
-  submissions?: {
-    language: string;
-    code: string;
-  }[];
+  submissions?: SolutionData[];
 }
 
 export interface ReviewClientProps {

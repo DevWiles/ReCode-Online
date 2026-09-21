@@ -24,11 +24,10 @@ export default async function ReviewPage() {
     include: {
       problem: true,
       submissions: {
-        orderBy: {
-          updatedAt: 'desc',
-        },
-        take: 1,
+        orderBy: [{ sortOrder: 'asc' }, { createdAt: 'asc' }],
         select: {
+          id: true,
+          label: true,
           language: true,
           code: true,
         },
@@ -56,7 +55,6 @@ export default async function ReviewPage() {
           day: 'numeric',
         })
       : null,
-    notes: p.notes,
     tags: p.problem.tags,
     submissions: p.submissions,
   }));

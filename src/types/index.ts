@@ -160,11 +160,18 @@ export interface TodayFocusProps {
 }
 
 // Questions interfaces
+export interface SolutionData {
+  id: string;
+  // Empty means the viewer falls back to "Solution N"
+  label: string;
+  language: string;
+  code: string;
+}
+
 export interface QuestionRowData {
   id: string;
   status: string;
   masteryLevel: number;
-  notes: string | null;
   updatedAt: Date;
 
   problem: {
@@ -176,11 +183,8 @@ export interface QuestionRowData {
     url: string;
   };
 
-  // recent Submission (for review)
-  submissions: {
-    language: string;
-    code: string;
-  }[];
+  // Every saved solution, in list order
+  submissions: SolutionData[];
 }
 
 export interface QuestionsPageClientProps {

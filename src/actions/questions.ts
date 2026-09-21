@@ -74,7 +74,6 @@ export async function saveQuestionAction(formData: EditorFormData) {
         update: {
           status: formData.masteryLevel === 5 ? "Solved" : "Reviewing",
           masteryLevel: formData.masteryLevel,
-          notes: formData.notes,
           lastReview: now,
         },
         // Creating the question itself counts as the first attempt, with an initial interval of 1 day.
@@ -83,7 +82,6 @@ export async function saveQuestionAction(formData: EditorFormData) {
           problemId: problem.id,
           status: "Reviewing",
           masteryLevel: formData.masteryLevel,
-          notes: formData.notes,
 
           reviewCount: 1,
           interval: 1,
@@ -94,15 +92,47 @@ export async function saveQuestionAction(formData: EditorFormData) {
         },
       });
 
-      // process Submission
-      if (formData.code && formData.code.trim() !== "") {
+      // process Submissions
+      // The form always carries the whole list, so anything missing from it was
+      // deleted in the editor. Rows with neither a name nor code are ignored.
+      const solutions = (formData.solutions || []).filter(
+        (solution) =>
+          solution.code.trim() !== "" || solution.label.trim() !== "",
+      );
+
+      const keptIds = solutions
+        .map((solution) => solution.id)
+        .filter((id): id is string => Boolean(id));
+
+      await tx.submission.deleteMany({
+        where: {
+          progressId: progress.id,
+          ...(keptIds.length > 0 ? { id: { notIn: keptIds } } : {}),
+        },
+      });
+
+      for (const [index, solution] of solutions.entries()) {
+        const data = {
+          label: solution.label.trim(),
+          language: solution.language,
+          code: solution.code,
+          sortOrder: index,
+          // The first one is what the list and the review card show first
+          isMain: index === 0,
+        };
+
+        if (solution.id) {
+          // Scoped to this progress so a stale or forged id cannot touch another record
+          const { count } = await tx.submission.updateMany({
+            where: { id: solution.id, progressId: progress.id },
+            data,
+          });
+          if (count > 0) continue;
+          // The row is gone (deleted elsewhere); keep the code rather than drop it
+        }
+
         await tx.submission.create({
-          data: {
-            progressId: progress.id,
-            language: formData.language,
-            code: formData.code,
-            isMain: true,
-          },
+          data: { ...data, progressId: progress.id },
         });
       }
     });

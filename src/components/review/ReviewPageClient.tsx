@@ -33,7 +33,6 @@ export default function ReviewPageClient({
       id: task.id,
       status: 'Review',
       masteryLevel: task.masteryLevel,
-      notes: task.notes || null,
       updatedAt: new Date(),
       problem: {
         // this id is not used

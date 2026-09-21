@@ -7,10 +7,13 @@ import { toast } from 'sonner';
 import { saveQuestionAction } from '@/actions/questions';
 
 import { EditorHeader } from './editor/EditorHeader';
-import { CodeSection } from './editor/CodeSection';
+import { SolutionList } from './editor/SolutionList';
 import { MetaSidebar } from './editor/MetaSidebar';
-import { NoteSection } from './editor/NoteSection';
-import { EditorFormData, QuestionEditorProps } from '@/types/editor';
+import {
+  EditorFormData,
+  EditorSolution,
+  QuestionEditorProps,
+} from '@/types/editor';
 
 export default function QuestionEditor({
   mode = 'create',
@@ -26,10 +29,8 @@ export default function QuestionEditor({
     difficulty: 'Medium',
     tags: [],
     link: '',
-    language: preferredLang,
-    code: '',
+    solutions: [],
     masteryLevel: 0,
-    notes: '',
   };
 
   const startData: EditorFormData = {
@@ -121,17 +122,13 @@ export default function QuestionEditor({
             onRemoveTag={handleRemoveTag}
           />
 
-          <div className="flex flex-col lg:h-[650px] shadow-[0_8px_30px_rgba(0,0,0,0.04)] rounded-[2rem] overflow-hidden border border-white/60 bg-white/40 backdrop-blur-sm">
-            <CodeSection
-              code={formData.code}
-              language={formData.language}
-              onUpdate={handleUpdate}
-            />
-          </div>
-
-          <div className="shadow-[0_8px_30px_rgba(0,0,0,0.04)] rounded-[2rem] overflow-hidden border border-white/60 bg-white/60 backdrop-blur-xl">
-            <NoteSection note={formData.notes} onUpdate={handleUpdate} />
-          </div>
+          <SolutionList
+            solutions={formData.solutions}
+            preferredLang={preferredLang}
+            onChange={(solutions: EditorSolution[]) =>
+              handleUpdate('solutions', solutions)
+            }
+          />
         </div>
       </div>
     </div>

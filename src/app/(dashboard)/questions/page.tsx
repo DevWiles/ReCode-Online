@@ -18,8 +18,7 @@ export default async function QuestionsPage() {
     include: {
       problem: true,
       submissions: {
-        take: 1,
-        orderBy: { createdAt: "desc" },
+        orderBy: [{ sortOrder: "asc" }, { createdAt: "asc" }],
       },
     },
     orderBy: {
@@ -31,7 +30,6 @@ export default async function QuestionsPage() {
     id: p.id,
     status: p.status,
     masteryLevel: p.masteryLevel,
-    notes: p.notes,
     updatedAt: p.updatedAt,
 
     problem: {
@@ -45,6 +43,8 @@ export default async function QuestionsPage() {
     },
 
     submissions: p.submissions.map((s) => ({
+      id: s.id,
+      label: s.label,
       language: s.language,
       code: s.code,
     })),

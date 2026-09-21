@@ -3,12 +3,7 @@
 import Link from "next/link";
 import { useTranslation } from "@/hooks/useTranslation";
 
-import ReactMarkdown from "react-markdown";
-import rehypeHighlight from "rehype-highlight";
 import "highlight.js/styles/github-dark.css";
-import remarkMath from "remark-math";
-import rehypeKatex from "rehype-katex";
-import "katex/dist/katex.min.css";
 
 import {
   Sheet,
@@ -20,10 +15,11 @@ import {
 import { Badge } from "@/components/ui/badge";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { Button } from "@/components/ui/button";
-import { Code, FileText, Calendar, Edit3 } from "lucide-react";
+import { Code, Calendar, Edit3 } from "lucide-react";
 
 import { MASTERY_COLORS } from "@/constants";
 import { QuestionRowData } from "@/types";
+import { SolutionViewer } from "./SolutionViewer";
 
 interface QuestionPreviewSheetProps {
   isOpen: boolean;
@@ -41,7 +37,6 @@ export const QuestionPreviewSheet = ({
   const { t } = useTranslation();
 
   const tags = data.problem.tags.split(",");
-  const latestSubmission = data.submissions[0];
 
   return (
     <Sheet open={isOpen} onOpenChange={onOpenChange}>
@@ -109,58 +104,13 @@ export const QuestionPreviewSheet = ({
         <div className="flex-1 overflow-hidden">
           <ScrollArea className="h-full w-full">
             <div className="p-6 pb-20 space-y-8 w-full max-w-[100vw] sm:max-w-xl">
-              {/* code */}
-              <div className="space-y-3">
-                <div className="flex items-center gap-2 text-sm font-semibold text-gray-800">
-                  <Code size={16} className="text-[#ffa116]" />
-                  <span>{t("previewSheet.solutionCode")}</span>
-                  <span className="ml-auto text-xs font-mono text-gray-400 bg-gray-100 px-2 py-0.5 rounded">
-                    {latestSubmission?.language ||
-                      t("previewSheet.notAvailable")}
-                  </span>
-                </div>
-                <div
-                  className="text-base prose max-w-none dark:prose-invert 
-                  prose-pre:bg-[#0d1117] prose-pre:m-0 prose-pre:rounded-xl prose-pre:max-w-full prose-pre:overflow-x-auto
-                  prose-code:before:content-none prose-code:after:content-none
-                  w-full"
-                >
-                  <ReactMarkdown rehypePlugins={[rehypeHighlight]}>
-                    {`\`\`\`${latestSubmission?.language || "text"}\n${
-                      latestSubmission?.code || t("previewSheet.noCode")
-                    }\n\`\`\``}
-                  </ReactMarkdown>
-                </div>
+              {/* solutions: the list is the overview, click one to read its code */}
+              <div className="flex items-center gap-2 text-sm font-semibold text-gray-800">
+                <Code size={16} className="text-[#ffa116]" />
+                <span>{t("previewSheet.solutionCode")}</span>
               </div>
 
-              {/* note */}
-              <div className="space-y-3">
-                <div className="flex items-center gap-2 text-sm font-semibold text-gray-800">
-                  <FileText size={16} className="text-blue-500" />
-                  <span>{t("previewSheet.myNotes")}</span>
-                </div>
-                <div className="p-5 rounded-xl bg-gray-50 border border-gray-100 text-gray-700 text-sm min-h-[100px]">
-                  {data.notes ? (
-                    <article
-                      className="prose prose-sm max-w-none 
-                    prose-code:before:content-none prose-code:after:content-none 
-                    prose-pre:max-w-full prose-pre:overflow-x-auto
-                    wrap-break-word"
-                    >
-                      <ReactMarkdown
-                        remarkPlugins={[remarkMath]}
-                        rehypePlugins={[rehypeHighlight, rehypeKatex]}
-                      >
-                        {data.notes}
-                      </ReactMarkdown>
-                    </article>
-                  ) : (
-                    <p className="text-gray-400 italic">
-                      {t("previewSheet.noNotes")}
-                    </p>
-                  )}
-                </div>
-              </div>
+              <SolutionViewer solutions={data.submissions} />
             </div>
           </ScrollArea>
         </div>
