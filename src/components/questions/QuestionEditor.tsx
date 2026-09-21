@@ -111,26 +111,22 @@ export default function QuestionEditor({
         />
 
         <div className="flex flex-col gap-6">
-          <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 lg:h-[650px]">
-            <div className="lg:col-span-2 flex flex-col h-full shadow-[0_8px_30px_rgba(0,0,0,0.04)] rounded-[2rem] overflow-hidden border border-white/60 bg-white/40 backdrop-blur-sm">
-              <CodeSection
-                code={formData.code}
-                language={formData.language}
-                onUpdate={handleUpdate}
-              />
-            </div>
+          <MetaSidebar
+            difficulty={formData.difficulty}
+            tags={formData.tags}
+            link={formData.link}
+            masteryLevel={formData.masteryLevel}
+            onUpdate={handleUpdate}
+            onAddTag={handleAddTag}
+            onRemoveTag={handleRemoveTag}
+          />
 
-            <div className="h-full">
-              <MetaSidebar
-                difficulty={formData.difficulty}
-                tags={formData.tags}
-                link={formData.link}
-                masteryLevel={formData.masteryLevel}
-                onUpdate={handleUpdate}
-                onAddTag={handleAddTag}
-                onRemoveTag={handleRemoveTag}
-              />
-            </div>
+          <div className="flex flex-col lg:h-[650px] shadow-[0_8px_30px_rgba(0,0,0,0.04)] rounded-[2rem] overflow-hidden border border-white/60 bg-white/40 backdrop-blur-sm">
+            <CodeSection
+              code={formData.code}
+              language={formData.language}
+              onUpdate={handleUpdate}
+            />
           </div>
 
           <div className="shadow-[0_8px_30px_rgba(0,0,0,0.04)] rounded-[2rem] overflow-hidden border border-white/60 bg-white/60 backdrop-blur-xl">

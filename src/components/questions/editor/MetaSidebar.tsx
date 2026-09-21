@@ -51,7 +51,7 @@ export const MetaSidebar = ({
   };
 
   return (
-    <div className="flex flex-col gap-5 h-full">
+    <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-4 gap-5 items-stretch">
       {/* Problem Link 卡片 */}
       <div className="bg-white/60 backdrop-blur-xl p-5 rounded-[1.5rem] border border-white/60 shadow-sm transition-all hover:shadow-md">
         <label className="text-xs font-bold text-gray-400 uppercase tracking-wider flex items-center gap-2 mb-3 ml-1">
@@ -115,7 +115,7 @@ export const MetaSidebar = ({
       </div>
 
       {/* Tags */}
-      <div className="bg-white/60 backdrop-blur-xl p-5 rounded-[1.5rem] border border-white/60 shadow-sm flex-1 flex flex-col transition-all hover:shadow-md">
+      <div className="bg-white/60 backdrop-blur-xl p-5 rounded-[1.5rem] border border-white/60 shadow-sm flex flex-col transition-all hover:shadow-md">
         <div className="flex items-center justify-between mb-3 ml-1">
           <label className="text-xs font-bold text-gray-400 uppercase tracking-wider">
             {t("metaSidebar.tags")}
@@ -124,7 +124,7 @@ export const MetaSidebar = ({
             {tags.length}
           </span>
         </div>
-        <div className="flex flex-wrap gap-2 p-3 bg-gray-50/50 rounded-2xl border border-gray-100/50 flex-1 content-start overflow-y-auto max-h-[250px] shadow-inner">
+        <div className="flex flex-wrap gap-2 p-3 bg-gray-50/50 rounded-2xl border border-gray-100/50 flex-1 content-start overflow-y-auto min-h-[76px] max-h-[160px] shadow-inner">
           {tags.map((tag, index) => (
             <Badge
               key={index}
