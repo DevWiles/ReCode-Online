@@ -2,9 +2,8 @@ import { NextResponse, type NextRequest } from "next/server";
 
 import { SESSION_COOKIE, verifySessionToken } from "@/lib/session";
 
-// Reachable without a session. The userscript must stay public: Tampermonkey
-// fetches it directly, both to install and to check for updates
-const PUBLIC_PATHS = ["/login", "/recode-fresh.user.js"];
+// Reachable without a session
+const PUBLIC_PATHS = ["/login"];
 
 /**
  * Redirect to a path on the host the visitor actually typed.

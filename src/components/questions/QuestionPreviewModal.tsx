@@ -20,7 +20,6 @@ import { Code, Calendar, Edit3, ExternalLink, X } from "lucide-react";
 import { MASTERY_COLORS } from "@/constants";
 import { QuestionRowData } from "@/types";
 import { SolutionViewer } from "./SolutionViewer";
-import { withFreshStart } from "@/lib/utils";
 
 interface QuestionPreviewModalProps {
   isOpen: boolean;
@@ -76,7 +75,7 @@ export const QuestionPreviewModal = ({
             <div className="flex items-center gap-3 pt-1 mr-8">
               {data.problem.url && (
                 <a
-                  href={withFreshStart(data.problem.url)}
+                  href={data.problem.url}
                   target="_blank"
                   rel="noopener noreferrer"
                 >

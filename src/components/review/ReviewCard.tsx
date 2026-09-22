@@ -6,7 +6,7 @@ import { ExternalLink, Calendar } from 'lucide-react';
 
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
-import { cn, withFreshStart } from '@/lib/utils';
+import { cn } from '@/lib/utils';
 
 import { ReviewTask } from '@/types/review';
 import { MASTERY_COLORS } from '@/constants';
@@ -136,7 +136,7 @@ export const ReviewCard = ({
           {!isActive ? (
             <>
               <a
-                href={withFreshStart(getLeetCodeUrl(task.title, task.url, task.slug))}
+                href={getLeetCodeUrl(task.title, task.url, task.slug)}
                 target="_blank"
                 rel="noopener noreferrer"
                 className="w-full"
