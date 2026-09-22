@@ -45,6 +45,15 @@ export interface LeetCodeTopicTag {
   translatedName?: string | null;
 }
 
+export interface LeetCodeCodeSnippet {
+  // Display name, e.g. "Python3"
+  lang: string;
+  // Stable identifier LeetCode keys the snippet by, e.g. "python3"
+  langSlug: string;
+  // The empty function/class skeleton the site pre-fills its editor with
+  code: string;
+}
+
 export interface LeetCodeQuestionData {
   questionFrontendId: string;
   title: string;

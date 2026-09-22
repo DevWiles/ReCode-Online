@@ -55,6 +55,16 @@ export const LANGUAGES = [
   { value: "cpp", label: "C++" },
 ];
 
+// LeetCode keys its code snippets by its own slugs, which only mostly match the
+// values above: "python" there is Python 2, the modern skeleton is "python3"
+export const LEETCODE_LANG_SLUGS: Record<string, string> = {
+  typescript: "typescript",
+  javascript: "javascript",
+  python: "python3",
+  java: "java",
+  cpp: "cpp",
+};
+
 export const DIFFICULTIES = ["Easy", "Medium", "Hard"];
 
 export const STATUS_OPTIONS = ["Reviewing", "Solved", "Todo"];

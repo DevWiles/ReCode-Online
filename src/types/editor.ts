@@ -47,8 +47,18 @@ export interface EditorHeaderProps {
   onCancel: () => void;
 }
 
+// An updater is accepted as well as a plain array: the template fetch resolves
+// after the click that started it, so it must patch whatever is current then,
+// not the list it was fired from
+export type SolutionsUpdate =
+  | EditorSolution[]
+  | ((previous: EditorSolution[]) => EditorSolution[]);
+
 export interface SolutionListProps {
   solutions: EditorSolution[];
   preferredLang: string;
-  onChange: (solutions: EditorSolution[]) => void;
+  // Problem URL; a LeetCode one lets new solutions start from the official
+  // code skeleton. Empty, or any other site, simply starts from a blank editor
+  problemLink: string;
+  onChange: (update: SolutionsUpdate) => void;
 }

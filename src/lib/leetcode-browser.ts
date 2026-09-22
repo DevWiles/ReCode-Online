@@ -1,6 +1,8 @@
 import { existsSync } from "node:fs";
 
-import type { LeetCodeQuestionData } from "@/types";
+import type { Page } from "playwright-core";
+
+import type { LeetCodeCodeSnippet, LeetCodeQuestionData } from "@/types";
 
 /**
  * leetcode.cn sits behind a Cloudflare challenge that plain fetch cannot pass
@@ -41,10 +43,28 @@ const QUESTION_QUERY = `
   }
 `;
 
-export const fetchQuestionViaBrowser = async (
+const SNIPPETS_QUERY = `
+  query questionEditorData($titleSlug: String!) {
+    question(titleSlug: $titleSlug) {
+      codeSnippets {
+        lang
+        langSlug
+        code
+      }
+    }
+  }
+`;
+
+/**
+ * Opens the problem page in a real Chrome and hands the loaded page to `read`.
+ * Every failure - no Chrome, no playwright, a timeout - degrades to null so the
+ * caller can fall back to another source instead of rejecting.
+ */
+const withProblemPage = async <T>(
   pageUrl: string,
-  titleSlug: string
-): Promise<LeetCodeQuestionData | null> => {
+  label: string,
+  read: (page: Page) => Promise<T | null>
+): Promise<T | null> => {
   const executablePath = findChrome();
   if (!executablePath) {
     console.warn("LeetCode browser fetch skipped: no Chrome binary found");
@@ -81,51 +101,75 @@ export const fetchQuestionViaBrowser = async (
       timeout: PAGE_TIMEOUT,
     });
 
-    // The page ships the question inside __NEXT_DATA__, so usually no second
-    // request is needed at all
-    const embedded = await page.evaluate(() => {
-      const node = document.getElementById("__NEXT_DATA__");
-      if (!node?.textContent) return null;
+    return await read(page);
+  } catch (error) {
+    console.error(`LeetCode browser fetch failed for ${label}:`, error);
+    return null;
+  } finally {
+    await browser?.close().catch(() => {});
+  }
+};
 
-      try {
-        const parsed = JSON.parse(node.textContent);
-        const queries =
-          parsed?.props?.pageProps?.dehydratedState?.queries ?? [];
+/**
+ * The page ships what it rendered inside __NEXT_DATA__, so the wanted field is
+ * usually already there and no second request is needed at all.
+ */
+const readEmbeddedQuestion = (page: Page, field: string) =>
+  page.evaluate((wanted) => {
+    const node = document.getElementById("__NEXT_DATA__");
+    if (!node?.textContent) return null;
 
-        for (const query of queries) {
-          const question = query?.state?.data?.question;
-          if (question?.questionFrontendId) return question;
-        }
-      } catch {
-        return null;
+    try {
+      const parsed = JSON.parse(node.textContent);
+      const queries = parsed?.props?.pageProps?.dehydratedState?.queries ?? [];
+
+      for (const query of queries) {
+        const question = query?.state?.data?.question;
+        if (question?.[wanted]) return question;
       }
-
+    } catch {
       return null;
+    }
+
+    return null;
+  }, field);
+
+/**
+ * Falling back to the API from inside the page: the browser already holds the
+ * clearance cookie, and POSTs additionally need the CSRF token.
+ */
+const queryFromPage = (page: Page, query: string) =>
+  page.evaluate(async (gql) => {
+    const csrf = document.cookie.match(/csrftoken=([^;]+)/)?.[1] ?? "";
+
+    const response = await fetch("https://leetcode.cn/graphql", {
+      method: "POST",
+      credentials: "include",
+      headers: {
+        "Content-Type": "application/json",
+        "x-csrftoken": csrf,
+        Referer: location.href,
+      },
+      body: JSON.stringify({
+        query: gql,
+        variables: { titleSlug: location.pathname.split("/")[2] },
+      }),
     });
 
-    // Falling back to the API from inside the page: the browser already holds
-    // the clearance cookie, and POSTs additionally need the CSRF token
+    if (!response.ok) return null;
+
+    const json = await response.json();
+    return json?.data?.question ?? null;
+  }, query);
+
+export const fetchQuestionViaBrowser = async (
+  pageUrl: string,
+  titleSlug: string
+): Promise<LeetCodeQuestionData | null> =>
+  withProblemPage(pageUrl, titleSlug, async (page) => {
     const question =
-      embedded ??
-      (await page.evaluate(async (query) => {
-        const csrf = document.cookie.match(/csrftoken=([^;]+)/)?.[1] ?? "";
-
-        const response = await fetch("https://leetcode.cn/graphql", {
-          method: "POST",
-          credentials: "include",
-          headers: {
-            "Content-Type": "application/json",
-            "x-csrftoken": csrf,
-            Referer: location.href,
-          },
-          body: JSON.stringify({ query, variables: { titleSlug: location.pathname.split("/")[2] } }),
-        });
-
-        if (!response.ok) return null;
-
-        const json = await response.json();
-        return json?.data?.question ?? null;
-      }, QUESTION_QUERY));
+      (await readEmbeddedQuestion(page, "questionFrontendId")) ??
+      (await queryFromPage(page, QUESTION_QUERY));
 
     if (!question?.questionFrontendId) return null;
 
@@ -136,10 +180,17 @@ export const fetchQuestionViaBrowser = async (
       difficulty: question.difficulty,
       topicTags: question.topicTags ?? [],
     };
-  } catch (error) {
-    console.error(`LeetCode browser fetch failed for ${titleSlug}:`, error);
-    return null;
-  } finally {
-    await browser?.close().catch(() => {});
-  }
-};
+  });
+
+export const fetchCodeSnippetsViaBrowser = async (
+  pageUrl: string,
+  titleSlug: string
+): Promise<LeetCodeCodeSnippet[] | null> =>
+  withProblemPage(pageUrl, titleSlug, async (page) => {
+    const question =
+      (await readEmbeddedQuestion(page, "codeSnippets")) ??
+      (await queryFromPage(page, SNIPPETS_QUERY));
+
+    const snippets = question?.codeSnippets;
+    return Array.isArray(snippets) && snippets.length > 0 ? snippets : null;
+  });

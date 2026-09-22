@@ -1,8 +1,15 @@
-import { useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 import { useTranslation } from "@/hooks/useTranslation";
 
 import Editor from "@monaco-editor/react";
-import { ChevronRight, Code2, Plus, Trash2 } from "lucide-react";
+import {
+  ChevronRight,
+  Code2,
+  Loader2,
+  Plus,
+  RotateCw,
+  Trash2,
+} from "lucide-react";
 import { Input } from "@/components/ui/input";
 import {
   Dialog,
@@ -19,12 +26,20 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { LANGUAGES } from "@/constants";
+import { fetchLeetCodeSnippetsAction } from "@/actions/leetcode";
 
 import type { EditorSolution, SolutionListProps } from "@/types/editor";
+
+/** Editor language -> the empty skeleton LeetCode pre-fills its own editor with */
+type Templates = Record<string, string>;
+
+const isLeetCodeProblem = (link: string) =>
+  /leetcode\.(com|cn)\/problems\//.test(link);
 
 export const SolutionList = ({
   solutions,
   preferredLang,
+  problemLink,
   onChange,
 }: SolutionListProps) => {
   const { t } = useTranslation();
@@ -33,26 +48,149 @@ export const SolutionList = ({
   const [editingIndex, setEditingIndex] = useState<number | null>(null);
   const editing = editingIndex === null ? null : solutions[editingIndex];
 
+  // The templates are the same for every solution of a problem, so they are
+  // fetched once and kept as the in-flight promise: a second caller awaits the
+  // first request instead of starting its own
+  const pendingTemplates = useRef<Promise<Templates | null> | null>(null);
+  const templates = useRef<Templates | null>(null);
+  const [isFetchingTemplates, setIsFetchingTemplates] = useState(false);
+  const [templatesFailed, setTemplatesFailed] = useState(false);
+
+  const canFetchTemplates = isLeetCodeProblem(problemLink);
+
+  const loadTemplates = useCallback(
+    (retry = false) => {
+      if (!canFetchTemplates) return Promise.resolve(null);
+      if (retry) pendingTemplates.current = null;
+      if (pendingTemplates.current) return pendingTemplates.current;
+
+      setIsFetchingTemplates(true);
+      setTemplatesFailed(false);
+
+      pendingTemplates.current = fetchLeetCodeSnippetsAction(problemLink)
+        .then((result) => {
+          if (!result.success) {
+            // Cleared so the retry button can start a fresh request
+            pendingTemplates.current = null;
+            setTemplatesFailed(true);
+            return null;
+          }
+
+          templates.current = result.data;
+          return result.data;
+        })
+        .catch((error) => {
+          // A blank editor is a fine outcome; nothing here may break the dialog
+          console.error("Failed to fetch LeetCode code snippets:", error);
+          pendingTemplates.current = null;
+          setTemplatesFailed(true);
+          return null;
+        })
+        .finally(() => setIsFetchingTemplates(false));
+
+      return pendingTemplates.current;
+    },
+    [canFetchTemplates, problemLink]
+  );
+
+  // Warmed up while the problem is still being filled in, so the first "add"
+  // usually finds the template already there. leetcode.cn can need a browser,
+  // which takes seconds, and that wait is better spent before the click.
+  //
+  // Debounced because the link can be typed by hand: a URL matches halfway
+  // through the slug, and every later keystroke would fetch a different problem
+  useEffect(() => {
+    // Whatever was fetched belongs to the previous link. The failed flag is
+    // left to loadTemplates, which clears it as the new request goes out
+    pendingTemplates.current = null;
+    templates.current = null;
+
+    if (!canFetchTemplates) return;
+
+    const timer = setTimeout(() => loadTemplates(), 600);
+    return () => clearTimeout(timer);
+  }, [canFetchTemplates, loadTemplates]);
+
   const displayName = (solution: EditorSolution, index: number) =>
     solution.label.trim() ||
     t("solutionSection.untitled").replace("{{index}}", String(index + 1));
 
-  const handleAdd = () => {
-    onChange([...solutions, { label: "", language: preferredLang, code: "" }]);
-    setEditingIndex(solutions.length);
+  /**
+   * Writes the template in only where the user has not written anything of
+   * their own: an empty editor, or one still holding the previous language's
+   * untouched skeleton.
+   */
+  const applyTemplate = (
+    index: number,
+    language: string,
+    replaceable: string[]
+  ) => {
+    const code = templates.current?.[language];
+    if (!code) return;
+
+    onChange((previous) =>
+      previous.map((solution, i) =>
+        i === index &&
+        (!solution.code.trim() || replaceable.includes(solution.code))
+          ? { ...solution, code }
+          : solution
+      )
+    );
+  };
+
+  const handleAdd = async () => {
+    const index = solutions.length;
+
+    onChange((previous) => [
+      ...previous,
+      { label: "", language: preferredLang, code: "" },
+    ]);
+    setEditingIndex(index);
+
+    await loadTemplates();
+    applyTemplate(index, preferredLang, []);
   };
 
   const handlePatch = (index: number, patch: Partial<EditorSolution>) => {
-    onChange(
-      solutions.map((solution, i) =>
+    onChange((previous) =>
+      previous.map((solution, i) =>
         i === index ? { ...solution, ...patch } : solution
       )
     );
   };
 
+  /**
+   * Switching language swaps the skeleton over with it, as long as the editor
+   * still holds nothing but the old one.
+   */
+  const handleLanguageChange = async (index: number, language: string) => {
+    const previousCode = solutions[index].code;
+    const previousLanguage = solutions[index].language;
+
+    handlePatch(index, { language });
+
+    await loadTemplates();
+
+    const previousTemplate = templates.current?.[previousLanguage];
+    if (previousCode.trim() && previousCode !== previousTemplate) return;
+
+    applyTemplate(index, language, previousTemplate ? [previousTemplate] : []);
+  };
+
   const handleRemove = (index: number) => {
-    onChange(solutions.filter((_, i) => i !== index));
+    onChange((previous) => previous.filter((_, i) => i !== index));
     setEditingIndex(null);
+  };
+
+  /** Pulls the skeleton on demand after the automatic attempt came back empty */
+  const handleRetryTemplate = async () => {
+    if (editingIndex === null) return;
+
+    const index = editingIndex;
+    const { language, code } = solutions[index];
+
+    await loadTemplates(true);
+    applyTemplate(index, language, code.trim() ? [code] : []);
   };
 
   return (
@@ -132,7 +270,7 @@ export const SolutionList = ({
                 <DialogDescription className="sr-only">
                   {t("solutionSection.title")}
                 </DialogDescription>
-                <div className="flex flex-col sm:flex-row gap-3 pt-3">
+                <div className="flex flex-col sm:flex-row sm:items-center gap-3 pt-3">
                   <Input
                     value={editing.label}
                     onChange={(e) =>
@@ -144,7 +282,7 @@ export const SolutionList = ({
                   <Select
                     value={editing.language}
                     onValueChange={(val) =>
-                      handlePatch(editingIndex, { language: val })
+                      handleLanguageChange(editingIndex, val)
                     }
                   >
                     <SelectTrigger className="w-full sm:w-[160px] h-10 bg-white rounded-xl">
@@ -160,6 +298,26 @@ export const SolutionList = ({
                       ))}
                     </SelectContent>
                   </Select>
+
+                  {/* Only ever a hint: the editor stays usable while this runs */}
+                  {canFetchTemplates && isFetchingTemplates && (
+                    <span className="flex items-center gap-1.5 text-xs text-gray-400 shrink-0">
+                      <Loader2 size={13} className="animate-spin" />
+                      {t("solutionSection.templateLoading")}
+                    </span>
+                  )}
+                  {canFetchTemplates &&
+                    !isFetchingTemplates &&
+                    templatesFailed && (
+                      <button
+                        type="button"
+                        onClick={handleRetryTemplate}
+                        className="flex items-center gap-1.5 text-xs font-semibold text-gray-400 hover:text-blue-600 transition-colors shrink-0 cursor-pointer"
+                      >
+                        <RotateCw size={13} />
+                        {t("solutionSection.templateRetry")}
+                      </button>
+                    )}
                 </div>
               </DialogHeader>
 

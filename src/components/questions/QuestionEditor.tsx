@@ -11,8 +11,8 @@ import { SolutionList } from './editor/SolutionList';
 import { MetaSidebar } from './editor/MetaSidebar';
 import {
   EditorFormData,
-  EditorSolution,
   QuestionEditorProps,
+  SolutionsUpdate,
 } from '@/types/editor';
 
 export default function QuestionEditor({
@@ -125,8 +125,15 @@ export default function QuestionEditor({
           <SolutionList
             solutions={formData.solutions}
             preferredLang={preferredLang}
-            onChange={(solutions: EditorSolution[]) =>
-              handleUpdate('solutions', solutions)
+            problemLink={formData.link}
+            onChange={(update: SolutionsUpdate) =>
+              setFormData((prev) => ({
+                ...prev,
+                solutions:
+                  typeof update === 'function'
+                    ? update(prev.solutions)
+                    : update,
+              }))
             }
           />
         </div>

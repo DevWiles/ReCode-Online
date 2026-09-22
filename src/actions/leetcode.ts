@@ -1,9 +1,13 @@
 'use server';
 
+import { LEETCODE_LANG_SLUGS } from '@/constants';
 import { TAG_MAPPING } from '@/constants/tagMapping';
-import { fetchQuestionViaBrowser } from '@/lib/leetcode-browser';
+import {
+  fetchCodeSnippetsViaBrowser,
+  fetchQuestionViaBrowser,
+} from '@/lib/leetcode-browser';
 
-import type { LeetCodeQuestionData } from '@/types';
+import type { LeetCodeCodeSnippet, LeetCodeQuestionData } from '@/types';
 
 const QUESTION_QUERY = `
   query questionData($titleSlug: String!) {
@@ -20,11 +24,28 @@ const QUESTION_QUERY = `
   }
 `;
 
+const SNIPPETS_QUERY = `
+  query questionEditorData($titleSlug: String!) {
+    question(titleSlug: $titleSlug) {
+      codeSnippets {
+        lang
+        langSlug
+        code
+      }
+    }
+  }
+`;
+
+/** Pulls `titleSlug` out of any /problems/<slug>/... URL. */
+const parseTitleSlug = (url: string) =>
+  url.match(/problems\/([^/?]+)/)?.[1] ?? null;
+
 /** A plain GraphQL request. Returns null on anything other than a question. */
-const fetchQuestion = async (
+const fetchQuestion = async <T>(
   endpoint: string,
-  titleSlug: string
-): Promise<LeetCodeQuestionData | null> => {
+  titleSlug: string,
+  query = QUESTION_QUERY
+): Promise<T | null> => {
   try {
     const response = await fetch(endpoint, {
       method: 'POST',
@@ -33,7 +54,7 @@ const fetchQuestion = async (
         'User-Agent': 'Mozilla/5.0 (compatible; ReCode/1.0)',
       },
       body: JSON.stringify({
-        query: QUESTION_QUERY,
+        query,
         variables: { titleSlug },
       }),
       cache: 'no-store',
@@ -52,11 +73,10 @@ const fetchQuestion = async (
 export async function fetchLeetCodeQuestionAction(url: string) {
   // get titleSlug
   // Matches titleSlug after problems until - or ?
-  const match = url.match(/problems\/([^/?]+)/);
-  if (!match || !match[1]) {
+  const titleSlug = parseTitleSlug(url);
+  if (!titleSlug) {
     return { success: false, error: 'Invalid LeetCode URL format' };
   }
-  const titleSlug = match[1];
 
   const isCn = url.includes('leetcode.cn');
 
@@ -64,7 +84,10 @@ export async function fetchLeetCodeQuestionAction(url: string) {
 
   if (isCn) {
     // Works from a normal network; datacentre IPs get a Cloudflare challenge
-    question = await fetchQuestion('https://leetcode.cn/graphql', titleSlug);
+    question = await fetchQuestion<LeetCodeQuestionData>(
+      'https://leetcode.cn/graphql',
+      titleSlug
+    );
 
     // A real browser gets through that challenge and keeps the Chinese title
     if (!question) question = await fetchQuestionViaBrowser(url, titleSlug);
@@ -73,7 +96,10 @@ export async function fetchLeetCodeQuestionAction(url: string) {
   // The English site is never challenged and uses the same slugs, so it is a
   // usable last resort: only the title stays English, tags are mapped below
   if (!question) {
-    question = await fetchQuestion('https://leetcode.com/graphql', titleSlug);
+    question = await fetchQuestion<LeetCodeQuestionData>(
+      'https://leetcode.com/graphql',
+      titleSlug
+    );
   }
 
   if (!question) {
@@ -104,4 +130,69 @@ export async function fetchLeetCodeQuestionAction(url: string) {
       link: url,
     },
   };
+}
+
+/**
+ * The empty skeleton LeetCode pre-fills its own editor with, so a new solution
+ * starts from the official signature instead of a blank page.
+ *
+ * Follows the same ladder as the question fetch above: the Chinese site first,
+ * a real browser when it answers with a challenge, the English site last. The
+ * snippets are identical across both sites, only the comments inside a few of
+ * them are translated.
+ */
+export async function fetchLeetCodeSnippetsAction(url: string) {
+  const titleSlug = parseTitleSlug(url);
+  if (!titleSlug) {
+    return { success: false as const, error: 'Invalid LeetCode URL format' };
+  }
+
+  type SnippetsPayload = { codeSnippets?: LeetCodeCodeSnippet[] | null };
+
+  const isCn = url.includes('leetcode.cn');
+
+  let snippets: LeetCodeCodeSnippet[] | null = null;
+
+  if (isCn) {
+    snippets =
+      (
+        await fetchQuestion<SnippetsPayload>(
+          'https://leetcode.cn/graphql',
+          titleSlug,
+          SNIPPETS_QUERY
+        )
+      )?.codeSnippets ?? null;
+
+    if (!snippets?.length) {
+      snippets = await fetchCodeSnippetsViaBrowser(url, titleSlug);
+    }
+  }
+
+  if (!snippets?.length) {
+    snippets =
+      (
+        await fetchQuestion<SnippetsPayload>(
+          'https://leetcode.com/graphql',
+          titleSlug,
+          SNIPPETS_QUERY
+        )
+      )?.codeSnippets ?? null;
+  }
+
+  if (!snippets?.length) {
+    return { success: false as const, error: 'Failed to fetch code snippets' };
+  }
+
+  const bySlug = new Map(snippets.map((snippet) => [snippet.langSlug, snippet]));
+
+  // Keyed by the editor's own language values, so the caller never has to know
+  // about LeetCode's slugs. Languages the problem has no snippet for are left out
+  const templates: Record<string, string> = {};
+
+  for (const [language, slug] of Object.entries(LEETCODE_LANG_SLUGS)) {
+    const code = bySlug.get(slug)?.code;
+    if (code) templates[language] = code;
+  }
+
+  return { success: true as const, data: templates };
 }

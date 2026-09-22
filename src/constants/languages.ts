@@ -113,6 +113,8 @@ export const TRANSLATIONS = {
       languagePlaceholder: '选择语言',
       remove: '删除这份题解',
       empty: '还没有题解，点这里写第一份。',
+      templateLoading: '正在获取官方模板…',
+      templateRetry: '重新获取模板',
     },
     metaSidebar: {
       difficulty: '难度级别',
@@ -300,6 +302,8 @@ export const TRANSLATIONS = {
       languagePlaceholder: 'Language',
       remove: 'Remove this solution',
       empty: 'No solutions yet — click here to write the first one.',
+      templateLoading: 'Fetching template…',
+      templateRetry: 'Retry template',
     },
     metaSidebar: {
       difficulty: 'Difficulty',
@@ -483,6 +487,8 @@ export type TranslationKeys =
   | 'solutionSection.languagePlaceholder'
   | 'solutionSection.remove'
   | 'solutionSection.empty'
+  | 'solutionSection.templateLoading'
+  | 'solutionSection.templateRetry'
   | 'metaSidebar.difficulty'
   | 'metaSidebar.difficultyPlaceholder'
   | 'metaSidebar.tags'
