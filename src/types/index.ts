@@ -154,6 +154,7 @@ interface HomePageStats {
   totalQuestions: number;
   questionsTrend: number;
   toReview: number;
+  toReviewTomorrow: number;
   masteryRate: number;
 }
 

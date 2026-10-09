@@ -10,6 +10,8 @@ export const TRANSLATIONS = {
       welcomeBack: '欢迎回来！你今天有',
       questionsCount: '道题目',
       toReviewToday: '需要复习。',
+      welcomeBackTomorrow: '欢迎回来！今天的复习已清空，你明天有',
+      toReviewTomorrow: '需要复习。',
       addNote: '新增笔记',
       mastered: '已掌握',
       masteredFooter: '等级 4 以上的题目',
@@ -197,6 +199,8 @@ export const TRANSLATIONS = {
       welcomeBack: 'Welcome back! You have',
       questionsCount: 'questions',
       toReviewToday: 'to review today.',
+      welcomeBackTomorrow: "Welcome back! You're all caught up today. You have",
+      toReviewTomorrow: 'to review tomorrow.',
       addNote: 'Add Note',
       mastered: 'Mastered',
       masteredFooter: 'Level 4+ Questions',
@@ -391,6 +395,8 @@ export type TranslationKeys =
   | 'home.welcomeBack'
   | 'home.questionsCount'
   | 'home.toReviewToday'
+  | 'home.welcomeBackTomorrow'
+  | 'home.toReviewTomorrow'
   | 'home.addNote'
   | 'home.mastered'
   | 'home.masteredFooter'

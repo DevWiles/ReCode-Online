@@ -5,6 +5,7 @@ import HomePageClient from "@/components/home/HomePageClient";
 
 import type { FocusTaskItem, MasteryDistributionItem } from "@/types";
 import { MASTERY_COLORS } from "@/constants";
+import { getNextReviewDate } from "@/lib/utils";
 
 const getHomePageData = async (userId: string) => {
   const now = new Date();
@@ -81,6 +82,19 @@ const getHomePageData = async (userId: string) => {
     }),
   ]);
 
+  // Only needed for the header when today is clear: everything due before
+  // the study day after tomorrow begins will show up tomorrow
+  const tomorrowReviewCount =
+    reviewCount === 0
+      ? await prisma.progress.count({
+          where: {
+            userId: userId,
+            nextReview: { lt: getNextReviewDate(2) },
+            status: { not: "Todo" },
+          },
+        })
+      : 0;
+
   // Format
   // format Focus Tasks
   const focusTasks: FocusTaskItem[] = rawFocusTasks.map((p) => ({
@@ -127,6 +141,7 @@ const getHomePageData = async (userId: string) => {
       totalQuestions: totalQuestionsCount,
       questionsTrend: totalQuestionsThisWeek,
       toReview: reviewCount,
+      toReviewTomorrow: tomorrowReviewCount,
       masteryRate: masteryRate,
     },
   };

@@ -22,6 +22,8 @@ export default function HomePageClient({
   stats,
 }: HomePageClientProps) {
   const { t } = useTranslation();
+  // With nothing left today, look ahead so the header still has a useful number
+  const showTomorrow = stats.toReview === 0;
 
   return (
     <div className="relative w-full min-h-full">
@@ -42,11 +44,12 @@ export default function HomePageClient({
               {t('home.title')}
             </h1>
             <p className="text-gray-500 mt-3 text-lg font-medium">
-              {t('home.welcomeBack')}
+              {showTomorrow ? t('home.welcomeBackTomorrow') : t('home.welcomeBack')}
               <span className="inline-block px-3 py-1 mx-2 rounded-lg bg-orange-50 text-[#ffa116] font-bold border border-orange-100 shadow-sm">
-                {stats.toReview} {t('home.questionsCount')}
+                {showTomorrow ? stats.toReviewTomorrow : stats.toReview}{' '}
+                {t('home.questionsCount')}
               </span>
-              {t('home.toReviewToday')}
+              {showTomorrow ? t('home.toReviewTomorrow') : t('home.toReviewToday')}
             </p>
           </div>
 
