@@ -5,10 +5,14 @@ export function cn(...inputs: ClassValue[]) {
   return twMerge(clsx(inputs))
 }
 
+// A study day rolls over at 4am, so late-night practice still belongs to the previous day
+export const DAY_START_HOUR = 4;
+
 export function getNextReviewDate(days: number): Date {
   const date = new Date();
+  // Shift back to find which study day "now" falls in, e.g. 1am counts as yesterday
+  date.setHours(date.getHours() - DAY_START_HOUR);
   date.setDate(date.getDate() + days);
-  // set to 6am
-  date.setHours(6, 0, 0, 0);
+  date.setHours(DAY_START_HOUR, 0, 0, 0);
   return date;
 }
