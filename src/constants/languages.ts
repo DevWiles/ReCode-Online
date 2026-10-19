@@ -12,6 +12,8 @@ export const TRANSLATIONS = {
       toReviewToday: '需要复习。',
       welcomeBackTomorrow: '欢迎回来！今天的复习已清空，你明天有',
       toReviewTomorrow: '需要复习。',
+      lowLevelPrefix: '其中',
+      lowLevelSuffix: '在等级 4 以下。',
       addNote: '新增笔记',
       mastered: '已掌握',
       masteredFooter: '等级 4 以上的题目',
@@ -201,6 +203,8 @@ export const TRANSLATIONS = {
       toReviewToday: 'to review today.',
       welcomeBackTomorrow: "Welcome back! You're all caught up today. You have",
       toReviewTomorrow: 'to review tomorrow.',
+      lowLevelPrefix: 'Of these,',
+      lowLevelSuffix: 'are below level 4.',
       addNote: 'Add Note',
       mastered: 'Mastered',
       masteredFooter: 'Level 4+ Questions',
@@ -397,6 +401,8 @@ export type TranslationKeys =
   | 'home.toReviewToday'
   | 'home.welcomeBackTomorrow'
   | 'home.toReviewTomorrow'
+  | 'home.lowLevelPrefix'
+  | 'home.lowLevelSuffix'
   | 'home.addNote'
   | 'home.mastered'
   | 'home.masteredFooter'

@@ -51,6 +51,13 @@ export default function HomePageClient({
               </span>
               {showTomorrow ? t('home.toReviewTomorrow') : t('home.toReviewToday')}
             </p>
+            <p className="text-gray-500 mt-3 text-lg font-medium">
+              {t('home.lowLevelPrefix')}
+              <span className="inline-block px-3 py-1 mx-2 rounded-lg bg-red-50 text-red-500 font-bold border border-red-100 shadow-sm">
+                {stats.toReviewLowLevel} {t('home.questionsCount')}
+              </span>
+              {t('home.lowLevelSuffix')}
+            </p>
           </div>
 
           <div className="flex flex-wrap items-center gap-3">

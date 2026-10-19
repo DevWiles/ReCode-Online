@@ -95,6 +95,17 @@ const getHomePageData = async (userId: string) => {
         })
       : 0;
 
+  // The weak ones among whichever day the header is counting
+  const lowLevelReviewCount = await prisma.progress.count({
+    where: {
+      userId: userId,
+      nextReview:
+        reviewCount === 0 ? { lt: getNextReviewDate(2) } : { lte: now },
+      status: { not: "Todo" },
+      masteryLevel: { lt: 4 },
+    },
+  });
+
   // Format
   // format Focus Tasks
   const focusTasks: FocusTaskItem[] = rawFocusTasks.map((p) => ({
@@ -142,6 +153,7 @@ const getHomePageData = async (userId: string) => {
       questionsTrend: totalQuestionsThisWeek,
       toReview: reviewCount,
       toReviewTomorrow: tomorrowReviewCount,
+      toReviewLowLevel: lowLevelReviewCount,
       masteryRate: masteryRate,
     },
   };
