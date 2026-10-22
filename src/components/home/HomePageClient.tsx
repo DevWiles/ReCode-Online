@@ -31,6 +31,12 @@ export default function HomePageClient({
       : stats.nextReviewInDays === 2
         ? t('home.dayAfterTomorrow')
         : t('home.dayInN').replace('{{n}}', String(stats.nextReviewInDays));
+  // Questions reviewed today that landed on tomorrow aren't offered ahead,
+  // so say how many of tomorrow's count actually can be
+  const aheadHint =
+    stats.toReviewAhead > 0 && stats.toReviewAhead < stats.toReviewTomorrow
+      ? t('home.aheadHint').replace('{{count}}', String(stats.toReviewAhead))
+      : '';
 
   return (
     <div className="relative w-full min-h-full">
@@ -59,7 +65,9 @@ export default function HomePageClient({
                 {t('home.questionsCount')}
               </span>
               {showTomorrow
-                ? t('home.toReviewTomorrow').replace('{{day}}', dayLabel)
+                ? t('home.toReviewTomorrow')
+                    .replace('{{day}}', dayLabel)
+                    .replace('{{ahead}}', aheadHint)
                 : t('home.toReviewToday')}
             </p>
             <p className="text-gray-500 mt-3 text-lg font-medium">

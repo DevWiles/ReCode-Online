@@ -53,10 +53,7 @@ export const ReviewEmptyState = ({ mode, aheadCount }: ReviewEmptyStateProps) =>
           <Link href="/review/ahead">
             <Button className="h-12 px-8 rounded-2xl bg-[#ffa116] hover:bg-[#f09000] text-white shadow-xl shadow-orange-100 transition-all active:scale-95 text-base font-medium cursor-pointer">
               <FastForward size={18} className="mr-2" />
-              {t("reviewEmptyState.aheadBtn").replace(
-                "{{count}}",
-                aheadCount.toString()
-              )}
+              {t("reviewEmptyState.aheadBtn")}
             </Button>
           </Link>
         )}

@@ -11,7 +11,8 @@ export const TRANSLATIONS = {
       questionsCount: '道题目',
       toReviewToday: '需要复习。',
       welcomeBackTomorrow: '欢迎回来！今天的复习已清空，你{{day}}有',
-      toReviewTomorrow: '需要复习。',
+      toReviewTomorrow: '需要复习{{ahead}}。',
+      aheadHint: '（其中 {{count}} 道可提前复习）',
       dayTomorrow: '明天',
       dayAfterTomorrow: '后天',
       dayInN: '{{n}} 天后',
@@ -172,7 +173,7 @@ export const TRANSLATIONS = {
       description:
         '你已经完成了今天的全部复习任务。去学习一点新知识，或者休息一下吧？',
       actionBtn: '探索题库',
-      aheadBtn: '提前复习明天的 {{count}} 道题',
+      aheadBtn: '提前复习',
       aheadTitle: '今天就到这里',
       aheadDescription:
         '明天的复习已经提前完成了。不再往后加题，留点余量，休息一下吧。',
@@ -213,7 +214,8 @@ export const TRANSLATIONS = {
       questionsCount: 'questions',
       toReviewToday: 'to review today.',
       welcomeBackTomorrow: "Welcome back! You're all caught up today. You have",
-      toReviewTomorrow: 'to review {{day}}.',
+      toReviewTomorrow: 'to review {{day}}{{ahead}}.',
+      aheadHint: ' ({{count}} can be reviewed ahead)',
       dayTomorrow: 'tomorrow',
       dayAfterTomorrow: 'the day after tomorrow',
       dayInN: 'in {{n}} days',
@@ -376,7 +378,7 @@ export const TRANSLATIONS = {
       description:
         "You've completed all your reviews for today. Why not learn something new or take a well-deserved break?",
       actionBtn: 'Explore Questions',
-      aheadBtn: "Review tomorrow's {{count}} ahead",
+      aheadBtn: 'Review Ahead',
       aheadTitle: "That's Enough for Today",
       aheadDescription:
         "Tomorrow's reviews are done ahead of time. Nothing more gets pulled in — leave some room and take a break.",
@@ -428,6 +430,7 @@ export type TranslationKeys =
   | 'home.dayAfterTomorrow'
   | 'home.dayInN'
   | 'home.reviewAhead'
+  | 'home.aheadHint'
   | 'home.lowLevelPrefix'
   | 'home.lowLevelSuffix'
   | 'home.addNote'
