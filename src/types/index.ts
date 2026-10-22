@@ -154,7 +154,11 @@ interface HomePageStats {
   totalQuestions: number;
   questionsTrend: number;
   toReview: number;
+  // Count for the next study day with reviews, nextReviewInDays from today
   toReviewTomorrow: number;
+  nextReviewInDays: number;
+  // Tomorrow's questions still open for reviewing ahead
+  toReviewAhead: number;
   toReviewLowLevel: number;
   masteryRate: number;
 }

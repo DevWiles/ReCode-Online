@@ -46,6 +46,7 @@ export async function submitReviewAction(progressId: string, rating: number) {
 
     revalidatePath("/home");
     revalidatePath("/review");
+    revalidatePath("/review/ahead");
     revalidatePath("/questions");
 
     return {

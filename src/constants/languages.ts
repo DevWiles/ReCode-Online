@@ -10,8 +10,12 @@ export const TRANSLATIONS = {
       welcomeBack: '欢迎回来！你今天有',
       questionsCount: '道题目',
       toReviewToday: '需要复习。',
-      welcomeBackTomorrow: '欢迎回来！今天的复习已清空，你明天有',
+      welcomeBackTomorrow: '欢迎回来！今天的复习已清空，你{{day}}有',
       toReviewTomorrow: '需要复习。',
+      dayTomorrow: '明天',
+      dayAfterTomorrow: '后天',
+      dayInN: '{{n}} 天后',
+      reviewAhead: '提前复习明天的 {{count}} 道',
       lowLevelPrefix: '其中',
       lowLevelSuffix: '在等级 4 以下。',
       addNote: '新增笔记',
@@ -137,6 +141,9 @@ export const TRANSLATIONS = {
       descriptionWithCount: '你今天有 {{count}} 道题目需要复习。',
       descriptionEmpty: '你已完成所有复习任务！干得漂亮。',
       estimatedTime: '预计耗时：{{time}} 分钟',
+      aheadTitle: '提前复习',
+      aheadDescriptionWithCount: '学有余力？先把明天的 {{count}} 道题做了。',
+      aheadDescriptionEmpty: '明天的内容已经提前复习完了。',
     },
     reviewCard: {
       lastReview: '最近复习',
@@ -165,6 +172,10 @@ export const TRANSLATIONS = {
       description:
         '你已经完成了今天的全部复习任务。去学习一点新知识，或者休息一下吧？',
       actionBtn: '探索题库',
+      aheadBtn: '提前复习明天的 {{count}} 道题',
+      aheadTitle: '今天就到这里',
+      aheadDescription:
+        '明天的复习已经提前完成了。不再往后加题，留点余量，休息一下吧。',
     },
     sidebar: {
       home: '首页',
@@ -202,7 +213,11 @@ export const TRANSLATIONS = {
       questionsCount: 'questions',
       toReviewToday: 'to review today.',
       welcomeBackTomorrow: "Welcome back! You're all caught up today. You have",
-      toReviewTomorrow: 'to review tomorrow.',
+      toReviewTomorrow: 'to review {{day}}.',
+      dayTomorrow: 'tomorrow',
+      dayAfterTomorrow: 'the day after tomorrow',
+      dayInN: 'in {{n}} days',
+      reviewAhead: "Review tomorrow's {{count}} ahead",
       lowLevelPrefix: 'Of these,',
       lowLevelSuffix: 'are below level 4.',
       addNote: 'Add Note',
@@ -331,6 +346,10 @@ export const TRANSLATIONS = {
         'You have {{count}} questions due for review today.',
       descriptionEmpty: "You're all caught up! Great job.",
       estimatedTime: 'Estimated time: {{time}} mins',
+      aheadTitle: 'Review Ahead',
+      aheadDescriptionWithCount:
+        "Got energy to spare? Get tomorrow's {{count}} questions done now.",
+      aheadDescriptionEmpty: "Tomorrow's reviews are already done.",
     },
     reviewCard: {
       lastReview: 'Last',
@@ -357,6 +376,10 @@ export const TRANSLATIONS = {
       description:
         "You've completed all your reviews for today. Why not learn something new or take a well-deserved break?",
       actionBtn: 'Explore Questions',
+      aheadBtn: "Review tomorrow's {{count}} ahead",
+      aheadTitle: "That's Enough for Today",
+      aheadDescription:
+        "Tomorrow's reviews are done ahead of time. Nothing more gets pulled in — leave some room and take a break.",
     },
     sidebar: {
       home: 'Home',
@@ -401,6 +424,10 @@ export type TranslationKeys =
   | 'home.toReviewToday'
   | 'home.welcomeBackTomorrow'
   | 'home.toReviewTomorrow'
+  | 'home.dayTomorrow'
+  | 'home.dayAfterTomorrow'
+  | 'home.dayInN'
+  | 'home.reviewAhead'
   | 'home.lowLevelPrefix'
   | 'home.lowLevelSuffix'
   | 'home.addNote'
@@ -515,6 +542,9 @@ export type TranslationKeys =
   | 'reviewHeader.descriptionWithCount'
   | 'reviewHeader.descriptionEmpty'
   | 'reviewHeader.estimatedTime'
+  | 'reviewHeader.aheadTitle'
+  | 'reviewHeader.aheadDescriptionWithCount'
+  | 'reviewHeader.aheadDescriptionEmpty'
   | 'reviewCard.lastReview'
   | 'reviewCard.currentMastery'
   | 'reviewCard.solveBtn'
@@ -535,6 +565,9 @@ export type TranslationKeys =
   | 'reviewCard.titleEasy'
   | 'reviewEmptyState.title'
   | 'reviewEmptyState.description'
-  | 'reviewEmptyState.actionBtn';
+  | 'reviewEmptyState.actionBtn'
+  | 'reviewEmptyState.aheadBtn'
+  | 'reviewEmptyState.aheadTitle'
+  | 'reviewEmptyState.aheadDescription';
 
 export type LanguageType = keyof typeof TRANSLATIONS;

@@ -14,6 +14,7 @@ import {
   BrainCircuit,
   CheckCircle2,
   Layers,
+  FastForward,
 } from 'lucide-react';
 
 export default function HomePageClient({
@@ -24,6 +25,12 @@ export default function HomePageClient({
   const { t } = useTranslation();
   // With nothing left today, look ahead so the header still has a useful number
   const showTomorrow = stats.toReview === 0;
+  const dayLabel =
+    stats.nextReviewInDays <= 1
+      ? t('home.dayTomorrow')
+      : stats.nextReviewInDays === 2
+        ? t('home.dayAfterTomorrow')
+        : t('home.dayInN').replace('{{n}}', String(stats.nextReviewInDays));
 
   return (
     <div className="relative w-full min-h-full">
@@ -44,12 +51,16 @@ export default function HomePageClient({
               {t('home.title')}
             </h1>
             <p className="text-gray-500 mt-3 text-lg font-medium">
-              {showTomorrow ? t('home.welcomeBackTomorrow') : t('home.welcomeBack')}
+              {showTomorrow
+                ? t('home.welcomeBackTomorrow').replace('{{day}}', dayLabel)
+                : t('home.welcomeBack')}
               <span className="inline-block px-3 py-1 mx-2 rounded-lg bg-orange-50 text-[#ffa116] font-bold border border-orange-100 shadow-sm">
                 {showTomorrow ? stats.toReviewTomorrow : stats.toReview}{' '}
                 {t('home.questionsCount')}
               </span>
-              {showTomorrow ? t('home.toReviewTomorrow') : t('home.toReviewToday')}
+              {showTomorrow
+                ? t('home.toReviewTomorrow').replace('{{day}}', dayLabel)
+                : t('home.toReviewToday')}
             </p>
             <p className="text-gray-500 mt-3 text-lg font-medium">
               {t('home.lowLevelPrefix')}
@@ -61,6 +72,19 @@ export default function HomePageClient({
           </div>
 
           <div className="flex flex-wrap items-center gap-3">
+            {showTomorrow && stats.toReviewAhead > 0 && (
+              <Link href={'/review/ahead'}>
+                <button className="flex items-center gap-2 bg-orange-50 hover:bg-orange-100 text-[#ffa116] border border-orange-100 px-6 py-3 rounded-2xl font-semibold transition-all cursor-pointer">
+                  <FastForward size={20} />
+                  <span>
+                    {t('home.reviewAhead').replace(
+                      '{{count}}',
+                      String(stats.toReviewAhead),
+                    )}
+                  </span>
+                </button>
+              </Link>
+            )}
             {/* Add Note Button */}
             <Link href={'/questions/add'}>
               <button className="group relative flex items-center gap-2 bg-gray-900 hover:bg-black text-white px-6 py-3 rounded-2xl font-semibold transition-all cursor-pointer overflow-hidden">

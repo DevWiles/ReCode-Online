@@ -6,6 +6,9 @@ import HomePageClient from "@/components/home/HomePageClient";
 import type { FocusTaskItem, MasteryDistributionItem } from "@/types";
 import { MASTERY_COLORS } from "@/constants";
 import { getNextReviewDate } from "@/lib/utils";
+import { aheadWhere } from "@/lib/review";
+
+const DAY_MS = 24 * 60 * 60 * 1000;
 
 const getHomePageData = async (userId: string) => {
   const now = new Date();
@@ -82,25 +85,52 @@ const getHomePageData = async (userId: string) => {
     }),
   ]);
 
-  // Only needed for the header when today is clear: everything due before
-  // the study day after tomorrow begins will show up tomorrow
-  const tomorrowReviewCount =
-    reviewCount === 0
-      ? await prisma.progress.count({
-          where: {
-            userId: userId,
-            nextReview: { lt: getNextReviewDate(2) },
-            status: { not: "Todo" },
-          },
-        })
-      : 0;
+  // When today is clear the header looks ahead to the next study day that
+  // actually has reviews, so clearing tomorrow early rolls it on to the day after
+  let nextReviewInDays = 1;
+  let nextDayWindow: { lte: Date } | { lt: Date } = { lte: now };
+  let nextDayReviewCount = 0;
+  let aheadCount = 0;
+
+  if (reviewCount === 0) {
+    const [upcoming, aheadTotal] = await Promise.all([
+      prisma.progress.findFirst({
+        where: {
+          userId: userId,
+          nextReview: { gt: now },
+          status: { not: "Todo" },
+        },
+        orderBy: { nextReview: "asc" },
+        select: { nextReview: true },
+      }),
+      prisma.progress.count({ where: aheadWhere(userId) }),
+    ]);
+
+    if (upcoming) {
+      nextReviewInDays = Math.max(
+        1,
+        Math.floor(
+          (upcoming.nextReview.getTime() - getNextReviewDate(0).getTime()) /
+            DAY_MS
+        )
+      );
+    }
+    nextDayWindow = { lt: getNextReviewDate(nextReviewInDays + 1) };
+    nextDayReviewCount = await prisma.progress.count({
+      where: {
+        userId: userId,
+        nextReview: nextDayWindow,
+        status: { not: "Todo" },
+      },
+    });
+    aheadCount = aheadTotal;
+  }
 
   // The weak ones among whichever day the header is counting
   const lowLevelReviewCount = await prisma.progress.count({
     where: {
       userId: userId,
-      nextReview:
-        reviewCount === 0 ? { lt: getNextReviewDate(2) } : { lte: now },
+      nextReview: nextDayWindow,
       status: { not: "Todo" },
       masteryLevel: { lt: 4 },
     },
@@ -152,7 +182,9 @@ const getHomePageData = async (userId: string) => {
       totalQuestions: totalQuestionsCount,
       questionsTrend: totalQuestionsThisWeek,
       toReview: reviewCount,
-      toReviewTomorrow: tomorrowReviewCount,
+      toReviewTomorrow: nextDayReviewCount,
+      nextReviewInDays,
+      toReviewAhead: aheadCount,
       toReviewLowLevel: lowLevelReviewCount,
       masteryRate: masteryRate,
     },

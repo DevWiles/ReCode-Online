@@ -17,6 +17,8 @@ import { QuestionPreviewModal } from '@/components/questions/QuestionPreviewModa
 
 export default function ReviewPageClient({
   initialReviews,
+  mode = 'today',
+  aheadCount = 0,
 }: ReviewClientProps) {
   const [reviews, setReviews] = useState<ReviewTask[]>(initialReviews);
   const [activeTaskId, setActiveTaskId] = useState<string | null>(null);
@@ -96,7 +98,7 @@ export default function ReviewPageClient({
 
       <div className="relative z-10 max-w-6xl mx-auto space-y-8 md:space-y-12 pb-24 p-4 md:p-8 lg:p-10">
         {/* Header */}
-        <ReviewHeader reviews={reviews} />
+        <ReviewHeader reviews={reviews} mode={mode} />
 
         {/* Review List */}
         <AnimatePresence mode="wait">
@@ -124,7 +126,7 @@ export default function ReviewPageClient({
             </motion.div>
           ) : (
             /* Empty State */
-            <ReviewEmptyState />
+            <ReviewEmptyState mode={mode} aheadCount={aheadCount} />
           )}
         </AnimatePresence>
       </div>

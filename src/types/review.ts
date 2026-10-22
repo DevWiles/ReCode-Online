@@ -13,6 +13,11 @@ export interface ReviewTask {
   submissions?: SolutionData[];
 }
 
+export type ReviewMode = 'today' | 'ahead';
+
 export interface ReviewClientProps {
   initialReviews: ReviewTask[];
+  mode?: ReviewMode;
+  // How many of tomorrow's questions can be reviewed ahead (today mode only)
+  aheadCount?: number;
 }

@@ -1,19 +1,21 @@
 import { useMemo } from "react";
 import { useTranslation } from "@/hooks/useTranslation";
 
-import { ReviewTask } from "@/types/review";
+import { ReviewTask, ReviewMode } from "@/types/review";
 
 import { BrainCircuit, Clock } from "lucide-react";
 
 
 interface ReviewHeaderProps {
   reviews:ReviewTask[];
+  mode: ReviewMode;
 }
 
-export const ReviewHeader = ({ reviews }: ReviewHeaderProps) => {
+export const ReviewHeader = ({ reviews, mode }: ReviewHeaderProps) => {
   const { t } = useTranslation();
 
   const count = reviews.length;
+  const isAhead = mode === "ahead";
 
   const totalEstimatedTime = useMemo(() => {
     let total = 0;
@@ -52,15 +54,20 @@ export const ReviewHeader = ({ reviews }: ReviewHeaderProps) => {
           <div className="p-3 bg-orange-50 text-[#ffa116] rounded-2xl shadow-sm border border-orange-100/50">
             <BrainCircuit size={40} strokeWidth={2.5} />
           </div>
-          {t("reviewHeader.title")}
+          {isAhead ? t("reviewHeader.aheadTitle") : t("reviewHeader.title")}
         </h1>
         <p className="text-gray-500 text-lg md:text-xl font-medium max-w-2xl leading-relaxed">
           {count > 0
-            ? t("reviewHeader.descriptionWithCount").replace(
-                "{{count}}",
-                count.toString()
-              )
-            : t("reviewHeader.descriptionEmpty")}
+            ? t(
+                isAhead
+                  ? "reviewHeader.aheadDescriptionWithCount"
+                  : "reviewHeader.descriptionWithCount"
+              ).replace("{{count}}", count.toString())
+            : t(
+                isAhead
+                  ? "reviewHeader.aheadDescriptionEmpty"
+                  : "reviewHeader.descriptionEmpty"
+              )}
         </p>
       </div>
 
