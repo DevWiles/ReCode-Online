@@ -1,13 +1,11 @@
 import { prisma } from '@/lib/db';
+import { requireUser } from '@/lib/auth';
 import { redirect } from 'next/navigation';
 import ReviewPageClient from '@/components/review/ReviewPageClient';
 import { aheadWhere, dueTodayWhere, getReviewTasks } from '@/lib/review';
 
 export default async function ReviewAheadPage() {
-  const user = await prisma.user.findFirst();
-  if (!user) {
-    redirect('/onboarding');
-  }
+  const user = await requireUser();
 
   // Today's own queue comes first
   const dueToday = await prisma.progress.count({

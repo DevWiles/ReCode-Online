@@ -1,13 +1,12 @@
 import { prisma } from "@/lib/db";
-import { redirect } from "next/navigation";
+import { requireUser } from "@/lib/auth";
 
 import QuestionsPageClient from "@/components/questions/QuestionsPageClient";
 
 import { QuestionRowData } from "@/types";
 
 export default async function QuestionsPage() {
-  const user = await prisma.user.findFirst();
-  if (!user) redirect("/onboarding");
+  const user = await requireUser();
 
   // get all Progress of this user
   const rawProgress = await prisma.progress.findMany({

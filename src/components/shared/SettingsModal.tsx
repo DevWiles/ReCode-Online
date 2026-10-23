@@ -63,7 +63,6 @@ export default function SettingsModal() {
     setIsUpdating(true);
 
     const res = await updateUserPreferences({
-      username,
       preferredLang: localPreferredLang,
       uiLanguage: localUiLanguage,
       dailyReviewLimit: limitToSave,

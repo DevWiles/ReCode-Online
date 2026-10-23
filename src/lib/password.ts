@@ -37,3 +37,19 @@ export const verifyPassword = (plain: string, stored: string | null) => {
     return false;
   }
 };
+
+// Ambiguous characters are left out so the password stays typable
+const ALPHABET =
+  "ABCDEFGHJKLMNPQRSTUVWXYZabcdefghijkmnopqrstuvwxyz23456789!@#%^&*-_=+";
+
+/** A random password for accounts the admin hands out. */
+export const generatePassword = (length = 16) => {
+  const bytes = randomBytes(length * 2);
+  let out = "";
+  for (let i = 0; out.length < length && i < bytes.length; i++) {
+    // Reject the tail of the byte range to keep the distribution uniform
+    if (bytes[i] >= 256 - (256 % ALPHABET.length)) continue;
+    out += ALPHABET[bytes[i] % ALPHABET.length];
+  }
+  return out;
+};

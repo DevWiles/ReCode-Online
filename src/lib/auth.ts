@@ -1,4 +1,5 @@
 import { cookies, headers } from "next/headers";
+import { redirect } from "next/navigation";
 
 import { prisma } from "@/lib/db";
 import { parseUserAgent, type DeviceInfo } from "@/lib/ua";
@@ -19,6 +20,28 @@ export const getCurrentUser = async () => {
   if (!session) return null;
 
   return prisma.user.findUnique({ where: { id: session.uid } });
+};
+
+export const isAdmin = (user: { role: string } | null | undefined) =>
+  user?.role === "ADMIN";
+
+/**
+ * The logged-in user for pages and actions behind the middleware. A valid
+ * cookie whose account has since been deleted is cleared via /logout.
+ */
+export const requireUser = async () => {
+  const user = await getCurrentUser();
+  if (!user) redirect("/logout");
+
+  return user;
+};
+
+/** Same as requireUser, but anyone who is not an admin is sent home. */
+export const requireAdmin = async () => {
+  const user = await requireUser();
+  if (!isAdmin(user)) redirect("/home");
+
+  return user;
 };
 
 export interface RequestContext extends DeviceInfo {

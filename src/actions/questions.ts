@@ -1,6 +1,7 @@
 "use server";
 
 import { prisma } from "@/lib/db";
+import { getCurrentUser } from "@/lib/auth";
 import { EditorFormData } from "@/types/editor";
 import { revalidatePath } from "next/cache";
 import { getNextReviewDate } from "@/lib/utils";
@@ -26,7 +27,7 @@ const getInitialEasiness = (diff: string) => {
 
 export async function saveQuestionAction(formData: EditorFormData) {
   try {
-    const user = await prisma.user.findFirst();
+    const user = await getCurrentUser();
     if (!user) {
       return { success: false, error: "Unauthorized: No user found" };
     }
@@ -35,10 +36,11 @@ export async function saveQuestionAction(formData: EditorFormData) {
     const nextReviewDate = getNextReviewDate(1);
 
     await prisma.$transaction(async (tx) => {
-      // process Problem
+      // process Problem (each user keeps a private copy)
       const problem = await tx.problem.upsert({
         where: {
-          platform_pid: {
+          userId_platform_pid: {
+            userId: user.id,
             platform: "LEETCODE",
             pid: formData.pid,
           },
@@ -51,6 +53,7 @@ export async function saveQuestionAction(formData: EditorFormData) {
           url: formData.link,
         },
         create: {
+          userId: user.id,
           platform: "LEETCODE",
           pid: formData.pid,
           title: formData.title,
@@ -150,7 +153,7 @@ export async function saveQuestionAction(formData: EditorFormData) {
 
 export async function deleteQuestionAction(progressId: string) {
   try {
-    const user = await prisma.user.findFirst();
+    const user = await getCurrentUser();
     if (!user) {
       return { success: false, error: "Unauthorized" };
     }
@@ -173,18 +176,10 @@ export async function deleteQuestionAction(progressId: string) {
         where: { id: progressId },
       });
 
-      // Orphan Cleanup
-      const remainingUsageCount = await tx.progress.count({
-        where: {
-          problemId: progress.problemId,
-        },
+      // The problem row belongs to this user alone, so it goes too
+      await tx.problem.delete({
+        where: { id: progress.problemId },
       });
-
-      if (remainingUsageCount === 0) {
-        await tx.problem.delete({
-          where: { id: progress.problemId },
-        });
-      }
     });
 
     revalidatePath("/questions");

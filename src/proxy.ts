@@ -48,8 +48,8 @@ export default async function proxy(request: NextRequest) {
     return redirectTo(request, "/home");
   }
 
-  // The root layout renders onboarding when no user exists; it needs to know
-  // when it is wrapping the login page so it does not swallow it
+  // The root layout loads the signed-in user on every page except login; it
+  // needs to know when it is wrapping the login page
   const requestHeaders = new Headers(request.headers);
   requestHeaders.set("x-pathname", pathname);
 

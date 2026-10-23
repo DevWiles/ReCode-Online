@@ -7,6 +7,8 @@ interface NavItem {
   zh_name: string;
   icon: LucideIcon;
   path: string;
+  // Hidden from everyone but administrators
+  adminOnly?: boolean;
 }
 
 export interface NavSection {
@@ -19,6 +21,7 @@ export interface UserState {
   uiLanguage: LanguageType;
   themeColor: string;
   username: string;
+  role: string;
   preferredLang: string;
   isSettingModalOpen: boolean;
   dailyReviewLimit: number;
@@ -26,6 +29,7 @@ export interface UserState {
   setLanguage: (lang: LanguageType) => void;
   setTheme: (color: string) => void;
   setUsername: (name: string) => void;
+  setRole: (role: string) => void;
   setPreferredLang: (preLang: string) => void;
   setDailyReviewLimit: (limit: number) => void;
   setIsSettingModalOpen: (status: boolean) => void;
@@ -33,7 +37,6 @@ export interface UserState {
 
 // updateUsers interfaces
 export interface UpdateUserProps {
-  username: string;
   preferredLang: string;
   uiLanguage: string;
   dailyReviewLimit: number;
@@ -101,13 +104,6 @@ export interface LoginLogsClientProps {
   failureCount: number;
   ipCount: number;
   currentIp: string;
-}
-
-// register interfaces
-export interface registerUserProps {
-  username: string;
-  preferredLang: string;
-  uiLanguage: string;
 }
 
 // StatCard interfaces
@@ -204,4 +200,32 @@ export interface QuestionRowData {
 
 export interface QuestionsPageClientProps {
   initialQuestions: QuestionRowData[];
+}
+
+// user management interfaces
+export interface CreateUserProps {
+  username: string;
+  // Blank = generate one
+  password: string;
+}
+
+export type UserAdminResult =
+  | { ok: true; username: string; password: string; error?: never }
+  | {
+      ok?: never;
+      error:
+        | "FORBIDDEN"
+        | "BAD_USERNAME"
+        | "SHORT_PASSWORD"
+        | "USERNAME_TAKEN"
+        | "NOT_FOUND";
+    };
+
+export interface UserRow {
+  id: string;
+  username: string;
+  role: string;
+  createdAt: string;
+  questionCount: number;
+  isSelf: boolean;
 }

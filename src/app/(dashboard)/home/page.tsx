@@ -1,5 +1,5 @@
 import { prisma } from "@/lib/db";
-import { redirect } from "next/navigation";
+import { requireUser } from "@/lib/auth";
 
 import HomePageClient from "@/components/home/HomePageClient";
 
@@ -192,11 +192,7 @@ const getHomePageData = async (userId: string) => {
 };
 
 const HomePage = async () => {
-  const user = await prisma.user.findFirst();
-
-  if (!user) {
-    redirect("/onboarding");
-  }
+  const user = await requireUser();
 
   const { focusTasks, masteryDistribution, stats } = await getHomePageData(
     user.id

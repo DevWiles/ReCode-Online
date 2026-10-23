@@ -1,5 +1,5 @@
 import { prisma } from "@/lib/db";
-import { getCurrentUser, getRequestContext } from "@/lib/auth";
+import { requireAdmin, getRequestContext } from "@/lib/auth";
 
 import LoginLogsClient from "@/components/logs/LoginLogsClient";
 
@@ -23,6 +23,7 @@ export default async function LogsPage({
 }: {
   searchParams: Promise<{ page?: string; filter?: string }>;
 }) {
+  const user = await requireAdmin();
   const params = await searchParams;
 
   const filter: LoginLogFilter =
@@ -34,9 +35,8 @@ export default async function LogsPage({
   const where =
     filter === "all" ? {} : { success: filter === "success" };
 
-  const [user, context, logs, total, successCount, failureCount, ipGroups] =
+  const [context, logs, total, successCount, failureCount, ipGroups] =
     await Promise.all([
-      getCurrentUser(),
       getRequestContext(),
       prisma.loginLog.findMany({
         where,
@@ -67,7 +67,7 @@ export default async function LogsPage({
 
   return (
     <LoginLogsClient
-      uiLanguage={user?.uiLanguage === "zh" ? "zh" : "en"}
+      uiLanguage={user.uiLanguage === "zh" ? "zh" : "en"}
       rows={rows}
       filter={filter}
       page={page}

@@ -20,6 +20,8 @@ model User {
   username      String     @unique
   // Scrypt password hash in "scrypt$N$r$p$salt$hash" format, null = login not configured yet
   passwordHash  String?
+  // ADMIN manages accounts and sees login logs; everyone else is USER
+  role          String     @default("USER")
   // Avatar URL, supports external links or local paths
   avatar        String?
   
@@ -37,15 +39,21 @@ model User {
   // Relations
   // All problem progress associated with the user
   progress      Progress[]
+  // Problems this user recorded; nobody else sees or edits them
+  problems      Problem[]
   // Account creation timestamp
   createdAt     DateTime   @default(now())
 }
 
 // -----------------------------------------------------------------------------
-// Problem: Stores problem metadata (static info across all platforms)
+// Problem: Stores problem metadata, owned by one user so edits stay private
 // -----------------------------------------------------------------------------
 model Problem {
   id              String   @id @default(cuid())
+
+  // Owner. Two users adding the same LeetCode problem get separate rows
+  userId          String
+  user            User     @relation(fields: [userId], references: [id])
   
   // The platform the problem belongs to (LEETCODE, CODEFORCES, LINTCODE, etc.)
   platform        String   @default("LEETCODE")
@@ -74,8 +82,8 @@ model Problem {
   // Linked to review progress of different users
   progress        Progress[]
 
-  // Constraint to ensure the same platform ID is not entered twice
-  @@unique([platform, pid])
+  // Constraint to ensure a user does not enter the same platform ID twice
+  @@unique([userId, platform, pid])
 }
 
 // -----------------------------------------------------------------------------

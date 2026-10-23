@@ -19,9 +19,15 @@ import {
 import { ChevronLeft, Settings2, LogOut } from 'lucide-react';
 
 const SideBar = () => {
-  const { uiLanguage, setIsSettingModalOpen } = useUserStore();
+  const { uiLanguage, role, setIsSettingModalOpen } = useUserStore();
   const [isOpen, setIsOpen] = useState(true);
   const pathname = usePathname();
+
+  // Admin pages stay out of the menu for everyone else
+  const nav = SIDEBAR_NAV.map((section) => ({
+    ...section,
+    items: section.items.filter((item) => !item.adminOnly || role === 'ADMIN'),
+  }));
 
   return (
     <>
@@ -57,7 +63,7 @@ const SideBar = () => {
 
         {/* Menu List */}
         <div className="flex flex-col overflow-y-auto p-4 gap-6 hide-scrollbar-y overflow-x-hidden flex-1">
-          {SIDEBAR_NAV.map((section, idx) => (
+          {nav.map((section, idx) => (
             <div key={idx}>
               <motion.div
                 variants={categoryVariants}
@@ -183,7 +189,7 @@ const SideBar = () => {
 
       {/* MOBILE BOTTOM NAV (< md screens) */}
       <nav className="md:hidden fixed bottom-0 left-0 right-0 bg-white/90 backdrop-blur-lg border-t border-gray-200/60 z-50 h-safe-bottom min-h-[64px] pb-safe flex items-center justify-around px-2 shadow-[0_-4px_20px_rgba(0,0,0,0.03)]">
-        {SIDEBAR_NAV.flatMap((section) => section.items).map((item) => {
+        {nav.flatMap((section) => section.items).map((item) => {
           const isActive =
             pathname === item.path ||
             (item.path !== '/' && pathname.startsWith(item.path));

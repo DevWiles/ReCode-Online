@@ -1,4 +1,5 @@
 import { prisma } from "@/lib/db";
+import { requireUser } from "@/lib/auth";
 import { redirect } from "next/navigation";
 import QuestionEditor from "@/components/questions/QuestionEditor";
 import { EditorFormData } from "@/types/editor";
@@ -12,10 +13,7 @@ interface QuestionEditPageProps {
 export default async function QuestionEditPage({
   params,
 }: QuestionEditPageProps) {
-  const user = await prisma.user.findFirst();
-  if (!user) {
-    redirect("/onboarding");
-  }
+  const user = await requireUser();
 
   const { id } = await params;
 

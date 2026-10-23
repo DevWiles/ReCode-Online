@@ -1,4 +1,4 @@
-import { LayoutGrid, ListTodo, BarChart2, HelpCircle, ScrollText } from "lucide-react";
+import { LayoutGrid, ListTodo, BarChart2, HelpCircle, ScrollText, Users } from "lucide-react";
 
 import type { CardVariant, NavSection } from "@/types";
 
@@ -24,6 +24,14 @@ export const SIDEBAR_NAV: NavSection[] = [
         zh_name: "登录日志",
         icon: ScrollText,
         path: "/logs",
+        adminOnly: true,
+      },
+      {
+        en_name: "Users",
+        zh_name: "用户管理",
+        icon: Users,
+        path: "/users",
+        adminOnly: true,
       },
       { en_name: "Help", zh_name: "帮助", icon: HelpCircle, path: "/help" },
     ],

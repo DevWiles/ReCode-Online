@@ -1,19 +1,22 @@
 "use server";
 
 import { prisma } from "@/lib/db";
+import { getCurrentUser } from "@/lib/auth";
 import { revalidatePath } from "next/cache";
 
 import { type UpdateUserProps } from "@/types";
 
 export const updateUserPreferences = async ({
-  username,
   preferredLang,
   uiLanguage,
   dailyReviewLimit,
 }: UpdateUserProps) => {
   try {
+    const user = await getCurrentUser();
+    if (!user) return { success: false, error: "Unauthorized" };
+
     await prisma.user.update({
-      where: { username },
+      where: { id: user.id },
       data: {
         preferredLang,
         uiLanguage,

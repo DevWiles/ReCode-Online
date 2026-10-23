@@ -108,8 +108,20 @@ jobs:
           set -euo pipefail
           cd /home/recode
 
-          # Apply migrations before the new code starts serving
           set -a; . /home/recode/app.env; set +a
+
+          # Snapshot the live database before any migration touches it.
+          # VACUUM INTO gives a consistent copy even while the app is serving;
+          # any failure here stops the deploy before the data is changed.
+          # Backups are never pruned automatically.
+          mkdir -p /home/recode/backups
+          BACKUP="/home/recode/backups/recode-$(date +%Y%m%d-%H%M%S).db"
+          echo "VACUUM INTO '$BACKUP';" | node tools/node_modules/prisma/build/index.js \
+            db execute --stdin --schema /home/recode/staging/prisma/schema.prisma
+          test -s "$BACKUP"
+          echo "database backed up to $BACKUP ($(du -h "$BACKUP" | cut -f1))"
+
+          # Apply migrations before the new code starts serving
           node tools/node_modules/prisma/build/index.js migrate deploy \
             --schema /home/recode/staging/prisma/schema.prisma
 

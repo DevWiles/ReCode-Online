@@ -1,13 +1,10 @@
 import { prisma } from '@/lib/db';
-import { redirect } from 'next/navigation';
+import { requireUser } from '@/lib/auth';
 import ReviewPageClient from '@/components/review/ReviewPageClient';
 import { aheadWhere, dueTodayWhere, getReviewTasks } from '@/lib/review';
 
 export default async function ReviewPage() {
-  const user = await prisma.user.findFirst();
-  if (!user) {
-    redirect('/onboarding');
-  }
+  const user = await requireUser();
 
   const limit = user.dailyReviewLimit || 50;
 
