@@ -2,6 +2,7 @@ import { randomInt } from "node:crypto";
 
 import { prisma } from "@/lib/db";
 import { sendMail } from "@/lib/mail";
+import { bannerAttachment, buildCodeMail } from "@/lib/mail/code-template";
 import { hashPassword, verifyPassword } from "@/lib/password";
 
 export type CodePurpose = "REGISTER" | "BIND" | "RESET";
@@ -16,18 +17,6 @@ const RESEND_COOLDOWN_SECONDS = 60;
 const MAX_PER_EMAIL = 5;
 const MAX_PER_IP = 10;
 
-const SUBJECTS: Record<CodePurpose, string> = {
-  REGISTER: "ReCode 注册验证码",
-  BIND: "ReCode 邮箱绑定验证码",
-  RESET: "ReCode 重置密码验证码",
-};
-
-const ACTIONS: Record<CodePurpose, string> = {
-  REGISTER: "注册 ReCode 账号",
-  BIND: "把这个邮箱绑定到你的 ReCode 账号",
-  RESET: "重置你的 ReCode 密码",
-};
-
 const minutesAgo = (minutes: number) =>
   new Date(Date.now() - minutes * 60 * 1000);
 
@@ -39,11 +28,14 @@ export const sendEmailCode = async ({
   email,
   purpose,
   userId,
+  username,
   ip,
 }: {
   email: string;
   purpose: CodePurpose;
   userId?: string;
+  // For the greeting; unknown while registering
+  username?: string;
   ip: string;
 }): Promise<{ ok: true } | { error: SendCodeError }> => {
   const latest = await prisma.emailCode.findFirst({
@@ -83,14 +75,14 @@ export const sendEmailCode = async ({
   });
 
   try {
-    await sendMail({
-      to: email,
-      subject: SUBJECTS[purpose],
-      text:
-        `你的验证码是：${code}\n\n` +
-        `它用于${ACTIONS[purpose]}，${CODE_TTL_MINUTES} 分钟内有效。\n` +
-        `如果这不是你本人的操作，忽略这封邮件即可。`,
+    const mail = buildCodeMail({
+      purpose,
+      code,
+      username,
+      ip,
+      minutes: CODE_TTL_MINUTES,
     });
+    await sendMail({ to: email, ...mail, attachments: [bannerAttachment()] });
   } catch (error) {
     console.error("Send code mail error:", error);
     // A code that never arrived should not hold up the cooldown

@@ -1,4 +1,4 @@
-import nodemailer, { type Transporter } from "nodemailer";
+import nodemailer, { type SendMailOptions, type Transporter } from "nodemailer";
 
 /**
  * Outgoing mail over SMTP (QQ / 163 mail with an authorization code).
@@ -37,10 +37,15 @@ export const sendMail = async ({
   to,
   subject,
   text,
+  html,
+  attachments,
 }: {
   to: string;
   subject: string;
+  // Always sent too, for clients that do not render HTML
   text: string;
+  html?: string;
+  attachments?: SendMailOptions["attachments"];
 }) => {
   const transport = getTransporter();
 
@@ -54,5 +59,7 @@ export const sendMail = async ({
     to,
     subject,
     text,
+    html,
+    attachments,
   });
 };
