@@ -23,7 +23,7 @@ export default async function RootLayout({
   const pathname = (await headers()).get("x-pathname") ?? "";
   const isAuthRoute = PUBLIC_PATHS.some((path) => pathname.startsWith(path));
 
-  const user = isAuthRoute ? null : await requireUser();
+  const user = isAuthRoute ? null : await requireUser({ allowUnverified: true });
 
   return (
     <html lang="zh-CN">

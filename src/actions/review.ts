@@ -1,14 +1,14 @@
 "use server";
 
 import { prisma } from "@/lib/db";
-import { getCurrentUser } from "@/lib/auth";
+import { getActiveUser } from "@/lib/auth";
 import { calculateNextReview } from "@/lib/srs";
 import { revalidatePath } from "next/cache";
 import { getNextReviewDate } from "@/lib/utils";
 
 export async function submitReviewAction(progressId: string, rating: number) {
   try {
-    const user = await getCurrentUser();
+    const user = await getActiveUser();
     if (!user) return { success: false, error: "Unauthorized" };
 
     const progress = await prisma.progress.findUnique({

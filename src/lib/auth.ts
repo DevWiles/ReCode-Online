@@ -34,12 +34,31 @@ export const isAdmin = (user: { role: string } | null | undefined) =>
   user?.role === "ADMIN";
 
 /**
- * The logged-in user for pages and actions behind the middleware. A valid
- * cookie whose account has since been deleted is cleared via /logout.
+ * Every account must have a verified email before it can use the site, so a
+ * forgotten password can always be recovered. Until then only the account
+ * page (to bind one) and signing out are available.
  */
-export const requireUser = async () => {
+export const hasVerifiedEmail = (
+  user: { emailVerifiedAt: Date | null } | null | undefined
+) => Boolean(user?.emailVerifiedAt);
+
+/** For server actions that touch the user's data: null until an email is bound. */
+export const getActiveUser = async () => {
+  const user = await getCurrentUser();
+  return hasVerifiedEmail(user) ? user : null;
+};
+
+/**
+ * The logged-in user for pages behind the middleware. A valid cookie whose
+ * account has since been deleted is cleared via /logout, and an account
+ * without a verified email is sent to bind one first.
+ */
+export const requireUser = async ({
+  allowUnverified = false,
+}: { allowUnverified?: boolean } = {}) => {
   const user = await getCurrentUser();
   if (!user) redirect("/logout");
+  if (!allowUnverified && !hasVerifiedEmail(user)) redirect("/account");
 
   return user;
 };

@@ -3,7 +3,7 @@
 import { revalidatePath } from "next/cache";
 
 import { prisma } from "@/lib/db";
-import { getCurrentUser, isAdmin } from "@/lib/auth";
+import { getActiveUser, isAdmin } from "@/lib/auth";
 import { generatePassword, hashPassword } from "@/lib/password";
 import {
   MIN_PASSWORD_LENGTH,
@@ -22,7 +22,7 @@ import type {
 
 /** The signed-in admin, or null for anyone else. */
 const getAdmin = async () => {
-  const user = await getCurrentUser();
+  const user = await getActiveUser();
   return isAdmin(user) ? user : null;
 };
 

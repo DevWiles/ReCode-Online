@@ -21,7 +21,8 @@ const COPY = {
     current: "当前邮箱",
     none: "未绑定",
     verified: "已验证",
-    noEmailWarn: "还没绑定邮箱，忘记密码时只能找管理员重置",
+    required: "请先绑定邮箱",
+    requiredSub: "为了保证忘记密码时能自助找回，所有账号都需要绑定一个邮箱。绑定完成后即可正常使用 ReCode。",
     newEmail: "新邮箱",
     code: "验证码",
     send: "发送验证码",
@@ -61,7 +62,8 @@ const COPY = {
     current: "Current email",
     none: "Not set",
     verified: "Verified",
-    noEmailWarn: "No email yet: if you forget your password only an admin can reset it",
+    required: "Please add an email first",
+    requiredSub: "Every account needs an email so a forgotten password can be recovered. You can use ReCode as soon as it is verified.",
     newEmail: "New email",
     code: "Code",
     send: "Send code",
@@ -149,6 +151,11 @@ export default function AccountClient({
     startTransition(async () => {
       const res = await bindEmail(emailForm);
       if (res.ok) {
+        // A first binding unlocks the rest of the site; reload into it
+        if (!emailVerified) {
+          window.location.replace("/home");
+          return;
+        }
         toast.success(t.bound);
         setEmailForm({ email: "", code: "" });
         setCodeSent(false);
@@ -221,11 +228,14 @@ export default function AccountClient({
           )}
         </div>
 
-        {!email && (
-          <p className="flex items-center gap-2 rounded-2xl bg-amber-50 border border-amber-200 px-4 py-3 text-sm font-semibold text-amber-800">
-            <TriangleAlert size={16} className="shrink-0" />
-            {t.noEmailWarn}
-          </p>
+        {!emailVerified && (
+          <div className="flex gap-3 rounded-2xl bg-amber-50 border border-amber-200 px-4 py-3 text-amber-800">
+            <TriangleAlert size={18} className="shrink-0 mt-0.5" />
+            <div>
+              <p className="font-bold">{t.required}</p>
+              <p className="text-sm mt-1">{t.requiredSub}</p>
+            </div>
+          </div>
         )}
 
         <div className="grid gap-4 md:grid-cols-[1fr_1fr_auto] md:items-end">

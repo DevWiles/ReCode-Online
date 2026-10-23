@@ -1,7 +1,7 @@
 "use server";
 
 import { prisma } from "@/lib/db";
-import { getCurrentUser } from "@/lib/auth";
+import { getActiveUser } from "@/lib/auth";
 import { EditorFormData } from "@/types/editor";
 import { revalidatePath } from "next/cache";
 import { getNextReviewDate } from "@/lib/utils";
@@ -27,7 +27,7 @@ const getInitialEasiness = (diff: string) => {
 
 export async function saveQuestionAction(formData: EditorFormData) {
   try {
-    const user = await getCurrentUser();
+    const user = await getActiveUser();
     if (!user) {
       return { success: false, error: "Unauthorized: No user found" };
     }
@@ -153,7 +153,7 @@ export async function saveQuestionAction(formData: EditorFormData) {
 
 export async function deleteQuestionAction(progressId: string) {
   try {
-    const user = await getCurrentUser();
+    const user = await getActiveUser();
     if (!user) {
       return { success: false, error: "Unauthorized" };
     }
