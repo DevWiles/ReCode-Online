@@ -169,11 +169,25 @@ export interface StatCardProps {
 }
 
 // MasteryBar interfaces
+// One question in the mastery breakdown popup
+export interface MasteryQuestionItem {
+  // Progress id, which is what /questions/[id] takes
+  id: string;
+  pid: string;
+  title: string;
+  difficulty: string;
+  tags: string[];
+  // ISO date of the next scheduled review
+  nextReview: string;
+}
+
 export interface MasteryDistributionItem {
   level: number;
   count: number;
   label: string;
   color: string;
+  // Soonest review first
+  questions: MasteryQuestionItem[];
 }
 
 export interface MasteryBarProps {

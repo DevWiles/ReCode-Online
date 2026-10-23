@@ -43,6 +43,7 @@ export const sendResetCode = async ({
       email: user.email,
       purpose: "RESET",
       userId: user.id,
+      username: user.username,
       ip,
     });
     if ("error" in sent) {

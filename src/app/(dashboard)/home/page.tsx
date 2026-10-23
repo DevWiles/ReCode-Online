@@ -3,7 +3,11 @@ import { requireUser } from "@/lib/auth";
 
 import HomePageClient from "@/components/home/HomePageClient";
 
-import type { FocusTaskItem, MasteryDistributionItem } from "@/types";
+import type {
+  FocusTaskItem,
+  MasteryDistributionItem,
+  MasteryQuestionItem,
+} from "@/types";
 import { MASTERY_COLORS } from "@/constants";
 import { getNextReviewDate } from "@/lib/utils";
 import { aheadWhere } from "@/lib/review";
@@ -20,6 +24,7 @@ const getHomePageData = async (userId: string) => {
   const [
     rawFocusTasks,
     rawDistribution,
+    levelQuestions,
     masteredCount,
     masteredThisWeek,
     totalQuestionsCount,
@@ -43,6 +48,20 @@ const getHomePageData = async (userId: string) => {
       by: ["masteryLevel"],
       where: { userId: userId },
       _count: { _all: true },
+    }),
+
+    // Every question with its level, for the popup behind each bar
+    prisma.progress.findMany({
+      where: { userId: userId },
+      select: {
+        id: true,
+        masteryLevel: true,
+        nextReview: true,
+        problem: {
+          select: { pid: true, title: true, difficulty: true, tags: true },
+        },
+      },
+      orderBy: { nextReview: "asc" },
     }),
 
     // Level >= 4
@@ -145,6 +164,20 @@ const getHomePageData = async (userId: string) => {
   }));
 
   // format mastery bar
+  const questionsByLevel = new Map<number, MasteryQuestionItem[]>();
+  for (const p of levelQuestions) {
+    const list = questionsByLevel.get(p.masteryLevel) ?? [];
+    list.push({
+      id: p.id,
+      pid: p.problem.pid,
+      title: p.problem.title,
+      difficulty: p.problem.difficulty,
+      tags: p.problem.tags.split(",").filter(Boolean),
+      nextReview: p.nextReview.toISOString(),
+    });
+    questionsByLevel.set(p.masteryLevel, list);
+  }
+
   const masteryDistribution: MasteryDistributionItem[] = Array.from({
     length: 6,
   }).map((_, level) => {
@@ -154,6 +187,7 @@ const getHomePageData = async (userId: string) => {
       count: found ? found._count._all : 0,
       label: `L${level}`,
       color: MASTERY_COLORS[level] || "#cbd5e1",
+      questions: questionsByLevel.get(level) ?? [],
     };
   });
 

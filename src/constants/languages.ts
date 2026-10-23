@@ -31,6 +31,13 @@ export const TRANSLATIONS = {
     masterybar: {
       title: '掌握程度分布',
       questions: '题目数量',
+      clickHint: '点击柱子查看题目',
+      countSuffix: '道题',
+      empty: '这个等级下暂无题目',
+      nextReview: '下次复习',
+      overdue: '已到期',
+      today: '今天',
+      close: '关闭',
     },
     todayFocus: {
       title: '今日焦点',
@@ -234,6 +241,13 @@ export const TRANSLATIONS = {
     masterybar: {
       title: 'Mastery Level Distribution',
       questions: 'Questions',
+      clickHint: 'Click a bar to see its questions',
+      countSuffix: 'questions',
+      empty: 'No questions at this level',
+      nextReview: 'Next review',
+      overdue: 'Due',
+      today: 'Today',
+      close: 'Close',
     },
     todayFocus: {
       title: "Today's Focus",
@@ -443,6 +457,13 @@ export type TranslationKeys =
   | 'home.masteryRate'
   | 'masterybar.title'
   | 'masterybar.questions'
+  | 'masterybar.clickHint'
+  | 'masterybar.countSuffix'
+  | 'masterybar.empty'
+  | 'masterybar.nextReview'
+  | 'masterybar.overdue'
+  | 'masterybar.today'
+  | 'masterybar.close'
   | 'todayFocus.title'
   | 'todayFocus.suggestedReview'
   | 'todayFocus.done'

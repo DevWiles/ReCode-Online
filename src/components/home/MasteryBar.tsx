@@ -1,6 +1,9 @@
 "use client";
 
+import { useState } from "react";
+
 import { useTranslation } from "@/hooks/useTranslation";
+import { MasteryLevelDialog } from "@/components/home/MasteryLevelDialog";
 
 import { Bar, BarChart, XAxis, Cell, LabelList, CartesianGrid } from "recharts";
 import {
@@ -14,6 +17,8 @@ import type { MasteryBarProps } from "@/types";
 
 export function MasteryBar({ distribution }: MasteryBarProps) {
   const { t } = useTranslation();
+  // Level whose questions are shown in the popup
+  const [openLevel, setOpenLevel] = useState<number | null>(null);
 
   const chartConfig = {
     count: {
@@ -28,8 +33,9 @@ export function MasteryBar({ distribution }: MasteryBarProps) {
         <h3 className="text-2xl font-bold text-gray-900 tracking-tight">
           {t("masterybar.title")}
         </h3>
-        {/* decoration */}
-        <div className="h-2 w-2 rounded-full bg-gray-300" />
+        <span className="text-xs font-medium text-gray-400">
+          {t("masterybar.clickHint")}
+        </span>
       </div>
 
       <ChartContainer config={chartConfig} className="h-72 w-full">
@@ -43,6 +49,13 @@ export function MasteryBar({ distribution }: MasteryBarProps) {
             bottom: 0,
           }}
           barSize={48}
+          // Anywhere in a column counts, so even an empty level can be opened
+          onClick={(state) => {
+            if (typeof state?.activeTooltipIndex === "number") {
+              setOpenLevel(state.activeTooltipIndex);
+            }
+          }}
+          className="cursor-pointer"
         >
           <CartesianGrid
             vertical={false}
@@ -89,6 +102,11 @@ export function MasteryBar({ distribution }: MasteryBarProps) {
           </Bar>
         </BarChart>
       </ChartContainer>
+
+      <MasteryLevelDialog
+        item={openLevel === null ? null : distribution[openLevel] ?? null}
+        onClose={() => setOpenLevel(null)}
+      />
     </div>
   );
 }

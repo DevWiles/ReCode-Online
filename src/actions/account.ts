@@ -30,6 +30,7 @@ export const sendBindCode = async ({
     email: address,
     purpose: "BIND",
     userId: user.id,
+    username: user.username,
     ip,
   });
 
