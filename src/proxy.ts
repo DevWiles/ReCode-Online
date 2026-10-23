@@ -1,9 +1,7 @@
 import { NextResponse, type NextRequest } from "next/server";
 
-import { SESSION_COOKIE, verifySessionToken } from "@/lib/session";
+import { PUBLIC_PATHS, SESSION_COOKIE, verifySessionToken } from "@/lib/session";
 
-// Reachable without a session
-const PUBLIC_PATHS = ["/login"];
 
 /**
  * Redirect to a path on the host the visitor actually typed.
@@ -48,8 +46,8 @@ export default async function proxy(request: NextRequest) {
     return redirectTo(request, "/home");
   }
 
-  // The root layout loads the signed-in user on every page except login; it
-  // needs to know when it is wrapping the login page
+  // The root layout loads the signed-in user on every page except the public
+  // ones; it needs to know when it is wrapping one of those
   const requestHeaders = new Headers(request.headers);
   requestHeaders.set("x-pathname", pathname);
 

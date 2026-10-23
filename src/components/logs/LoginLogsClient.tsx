@@ -47,6 +47,7 @@ const COPY = {
       BAD_PASSWORD: "密码错误",
       NO_SUCH_USER: "账号不存在",
       RATE_LIMITED: "已被限流",
+      DISABLED: "账号已禁用",
     } as Record<string, string>,
   },
   en: {
@@ -75,6 +76,7 @@ const COPY = {
       BAD_PASSWORD: "Wrong password",
       NO_SUCH_USER: "No such user",
       RATE_LIMITED: "Rate limited",
+      DISABLED: "Account disabled",
     } as Record<string, string>,
   },
 };

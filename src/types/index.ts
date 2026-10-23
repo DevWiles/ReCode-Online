@@ -67,14 +67,57 @@ export interface LeetCodeQuestionData {
 
 // login interfaces
 export interface LoginProps {
+  // Username or email
   username: string;
   password: string;
+  // Keep the session for 30 days instead of until the browser closes
+  remember: boolean;
 }
 
 // Discriminated result so the form can map error codes onto localized text
 export type LoginResult =
   | { ok: true; error?: never }
-  | { ok?: never; error: "EMPTY_FIELDS" | "BAD_CREDENTIALS" | "RATE_LIMITED" };
+  | {
+      ok?: never;
+      error: "EMPTY_FIELDS" | "BAD_CREDENTIALS" | "RATE_LIMITED" | "DISABLED";
+    };
+
+// Every account form returns this: ok, or an error code the form translates
+export type ActionResult<E extends string> =
+  | { ok: true; error?: never }
+  | { ok?: never; error: E };
+
+export type SendCodeError = "COOLDOWN" | "RATE_LIMITED" | "MAIL_FAILED";
+export type CodeError = "CODE_INVALID" | "CODE_EXPIRED" | "CODE_LOCKED";
+
+export type RegisterError =
+  | SendCodeError
+  | CodeError
+  | "INVITE_INVALID"
+  | "BAD_USERNAME"
+  | "USERNAME_TAKEN"
+  | "BAD_EMAIL"
+  | "EMAIL_TAKEN"
+  | "BAD_PASSWORD";
+
+export interface RegisterProps {
+  inviteCode: string;
+  username: string;
+  email: string;
+  code: string;
+  password: string;
+}
+
+export type ResetPasswordError = CodeError | "BAD_PASSWORD";
+
+export type AccountError =
+  | SendCodeError
+  | CodeError
+  | "UNAUTHORIZED"
+  | "BAD_EMAIL"
+  | "EMAIL_TAKEN"
+  | "BAD_PASSWORD"
+  | "WRONG_PASSWORD";
 
 // login log interfaces
 export type LoginLogFilter = "all" | "success" | "failed";
@@ -209,23 +252,47 @@ export interface CreateUserProps {
   password: string;
 }
 
+export type UserAdminError =
+  | "FORBIDDEN"
+  | "BAD_USERNAME"
+  | "SHORT_PASSWORD"
+  | "USERNAME_TAKEN"
+  | "NOT_FOUND"
+  | "PROTECTED"
+  | "CONFIRM_MISMATCH"
+  | "BAD_INVITE";
+
 export type UserAdminResult =
   | { ok: true; username: string; password: string; error?: never }
-  | {
-      ok?: never;
-      error:
-        | "FORBIDDEN"
-        | "BAD_USERNAME"
-        | "SHORT_PASSWORD"
-        | "USERNAME_TAKEN"
-        | "NOT_FOUND";
-    };
+  | { ok?: never; error: UserAdminError };
 
 export interface UserRow {
   id: string;
   username: string;
   role: string;
+  email: string | null;
+  emailVerified: boolean;
+  disabled: boolean;
   createdAt: string;
   questionCount: number;
   isSelf: boolean;
+}
+
+export interface InviteRow {
+  id: string;
+  code: string;
+  maxUses: number;
+  usedCount: number;
+  // Formatted, or null for no expiry
+  expiresAt: string | null;
+  // ACTIVE, USED_UP, EXPIRED or REVOKED
+  state: "ACTIVE" | "USED_UP" | "EXPIRED" | "REVOKED";
+  usedBy: string[];
+  createdAt: string;
+}
+
+export interface CreateInviteProps {
+  maxUses: number;
+  // 0 = never expires
+  expiresInDays: number;
 }

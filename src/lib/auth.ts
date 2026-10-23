@@ -14,12 +14,20 @@ export const getSession = async (): Promise<SessionPayload | null> => {
   return verifySessionToken(store.get(SESSION_COOKIE)?.value);
 };
 
-/** The logged-in user, or null. Pages behind the middleware always get a user. */
+/**
+ * The logged-in user, or null. The middleware only checks the signature, so
+ * this is where a deleted or disabled account, or a token issued before a
+ * password change or "sign out everywhere", stops working.
+ */
 export const getCurrentUser = async () => {
   const session = await getSession();
   if (!session) return null;
 
-  return prisma.user.findUnique({ where: { id: session.uid } });
+  const user = await prisma.user.findUnique({ where: { id: session.uid } });
+  if (!user || user.disabled) return null;
+  if ((session.sv ?? 0) !== user.sessionVersion) return null;
+
+  return user;
 };
 
 export const isAdmin = (user: { role: string } | null | undefined) =>

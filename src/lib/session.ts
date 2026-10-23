@@ -7,13 +7,21 @@
 
 export const SESSION_COOKIE = "recode_session";
 
-// 7 days, in seconds
-export const SESSION_MAX_AGE = 60 * 60 * 24 * 7;
+// Reachable without a session
+export const PUBLIC_PATHS = ["/login", "/register", "/forgot-password"];
+
+// "Remember me": 30 days, in seconds
+export const SESSION_MAX_AGE = 60 * 60 * 24 * 30;
+// Without it the cookie dies with the browser; the token itself gives up after a day
+export const SHORT_SESSION_MAX_AGE = 60 * 60 * 24;
 
 export interface SessionPayload {
   // User.id
   uid: string;
   username: string;
+  // User.sessionVersion when issued. Tokens from before it existed carry none
+  // and count as version 0
+  sv?: number;
   // Expiry, epoch seconds
   exp: number;
 }
@@ -54,11 +62,12 @@ const getKey = (secret: string) =>
   );
 
 export const createSessionToken = async (
-  payload: Omit<SessionPayload, "exp">
+  payload: Omit<SessionPayload, "exp">,
+  maxAge = SESSION_MAX_AGE
 ) => {
   const body: SessionPayload = {
     ...payload,
-    exp: Math.floor(Date.now() / 1000) + SESSION_MAX_AGE,
+    exp: Math.floor(Date.now() / 1000) + maxAge,
   };
 
   const encoded = toBase64Url(encoder.encode(JSON.stringify(body)));

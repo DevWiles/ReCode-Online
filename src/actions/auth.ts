@@ -6,11 +6,8 @@ import { redirect } from "next/navigation";
 import { prisma } from "@/lib/db";
 import { verifyPassword } from "@/lib/password";
 import { getRequestContext } from "@/lib/auth";
-import {
-  SESSION_COOKIE,
-  SESSION_MAX_AGE,
-  createSessionToken,
-} from "@/lib/session";
+import { normalizeEmail, signIn } from "@/lib/accounts";
+import { SESSION_COOKIE } from "@/lib/session";
 
 import type { LoginProps, LoginResult } from "@/types";
 
@@ -42,6 +39,7 @@ const recordAttempt = async (
 export const login = async ({
   username,
   password,
+  remember,
 }: LoginProps): Promise<LoginResult> => {
   const name = username.trim();
 
@@ -64,7 +62,12 @@ export const login = async ({
     return { error: "RATE_LIMITED" };
   }
 
-  const user = await prisma.user.findUnique({ where: { username: name } });
+  // Anything with an @ is an email; usernames cannot contain one
+  const user = await prisma.user.findUnique({
+    where: name.includes("@")
+      ? { email: normalizeEmail(name) }
+      : { username: name },
+  });
 
   if (!user || !verifyPassword(password, user.passwordHash)) {
     // The same message for both cases, so the form cannot be used to probe
@@ -73,16 +76,14 @@ export const login = async ({
     return { error: "BAD_CREDENTIALS" };
   }
 
-  await recordAttempt(name, true, null);
+  // Checked after the password so it reveals nothing to someone guessing
+  if (user.disabled) {
+    await recordAttempt(name, false, "DISABLED");
+    return { error: "DISABLED" };
+  }
 
-  const store = await cookies();
-  store.set(SESSION_COOKIE, await createSessionToken({ uid: user.id, username: user.username }), {
-    httpOnly: true,
-    sameSite: "lax",
-    secure: process.env.NODE_ENV === "production",
-    path: "/",
-    maxAge: SESSION_MAX_AGE,
-  });
+  await recordAttempt(name, true, null);
+  await signIn(user, remember);
 
   return { ok: true };
 };

@@ -3,6 +3,7 @@ import { headers } from "next/headers";
 import "@/styles/globals.css";
 
 import { requireUser } from "@/lib/auth";
+import { PUBLIC_PATHS } from "@/lib/session";
 import DashboardStateInitializer from "@/components/layout/DashboardStateInitializer";
 
 export const metadata: Metadata = {
@@ -17,10 +18,10 @@ export default async function RootLayout({
 }: Readonly<{
   children: React.ReactNode;
 }>) {
-  // The middleware forwards the path so the login screen, which has no
-  // signed-in user to load, can skip the lookup
+  // The middleware forwards the path so the public screens (login, register,
+  // password reset), which have no signed-in user to load, can skip the lookup
   const pathname = (await headers()).get("x-pathname") ?? "";
-  const isAuthRoute = pathname.startsWith("/login");
+  const isAuthRoute = PUBLIC_PATHS.some((path) => pathname.startsWith(path));
 
   const user = isAuthRoute ? null : await requireUser();
 
