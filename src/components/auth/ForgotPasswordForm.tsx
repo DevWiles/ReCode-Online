@@ -11,6 +11,7 @@ import {
   AuthSubmit,
   CodeInput,
   authInputClass,
+  reloadIfStaleDeployment,
   useCountdown,
   type AuthLang,
 } from "@/components/auth/AuthShell";
@@ -74,10 +75,10 @@ const COPY = {
 
 type FormError = ResetPasswordError | "MISMATCH" | "UNKNOWN";
 
-export default function ForgotPasswordForm() {
+export default function ForgotPasswordForm({ account }: { account: string }) {
   const [lang, setLang] = useState<AuthLang>("zh");
   const [form, setForm] = useState({
-    identifier: "",
+    identifier: account,
     code: "",
     password: "",
     confirm: "",
@@ -102,7 +103,8 @@ export default function ForgotPasswordForm() {
       await sendResetCode({ identifier: form.identifier });
       setNotice(true);
       countdown.start(60);
-    } catch {
+    } catch (err) {
+      if (reloadIfStaleDeployment(err)) return;
       setError("UNKNOWN");
     }
 
@@ -126,7 +128,8 @@ export default function ForgotPasswordForm() {
       } else {
         setError(res.error);
       }
-    } catch {
+    } catch (err) {
+      if (reloadIfStaleDeployment(err)) return;
       setError("UNKNOWN");
     }
     setPending(false);

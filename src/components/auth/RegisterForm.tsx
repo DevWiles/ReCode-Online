@@ -11,6 +11,7 @@ import {
   AuthSubmit,
   CodeInput,
   authInputClass,
+  reloadIfStaleDeployment,
   useCountdown,
   type AuthLang,
 } from "@/components/auth/AuthShell";
@@ -130,7 +131,8 @@ export default function RegisterForm({ invite }: { invite: string }) {
       } else {
         setError(res.error);
       }
-    } catch {
+    } catch (err) {
+      if (reloadIfStaleDeployment(err)) return;
       setError("UNKNOWN");
     }
 
@@ -154,7 +156,8 @@ export default function RegisterForm({ invite }: { invite: string }) {
         return;
       }
       setError(res.error);
-    } catch {
+    } catch (err) {
+      if (reloadIfStaleDeployment(err)) return;
       setError("UNKNOWN");
     }
     setPending(false);

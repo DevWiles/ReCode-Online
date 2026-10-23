@@ -200,3 +200,26 @@ export function CodeInput({
     </div>
   );
 }
+
+/**
+ * A page left open across a deploy still calls the old build's server
+ * actions, which the new server no longer knows. Reload once to pick up the
+ * new build; returns true when it did. A reload in the last 30 seconds means
+ * reloading did not help, so the error is shown instead of looping.
+ */
+export function reloadIfStaleDeployment(error: unknown) {
+  const message = error instanceof Error ? error.message : String(error);
+  if (!/Server Action|older or newer deployment/i.test(message)) return false;
+
+  const KEY = "recode:stale-reload";
+  try {
+    const last = Number(sessionStorage.getItem(KEY) || 0);
+    if (Date.now() - last < 30_000) return false;
+    sessionStorage.setItem(KEY, String(Date.now()));
+  } catch {
+    // Storage unavailable: still worth one reload
+  }
+
+  window.location.reload();
+  return true;
+}

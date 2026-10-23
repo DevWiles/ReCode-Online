@@ -10,6 +10,7 @@ import {
   AuthShell,
   AuthSubmit,
   authInputClass,
+  reloadIfStaleDeployment,
   type AuthLang,
 } from "@/components/auth/AuthShell";
 
@@ -34,7 +35,8 @@ const COPY = {
     notice: "登录行为会被记录 IP 与设备信息",
     EMPTY_FIELDS: "账号和密码不能为空",
     BAD_CREDENTIALS: "账号或密码错误",
-    RATE_LIMITED: "失败次数过多，请 15 分钟后再试",
+    RATE_LIMITED: "失败次数过多，请 15 分钟后再试，或用邮箱验证码重置密码",
+    resetByEmail: "用邮箱验证码重置密码",
     DISABLED: "该账号已被管理员禁用",
     UNKNOWN: "登录失败，请重试",
   },
@@ -54,7 +56,8 @@ const COPY = {
     notice: "Each attempt is logged with its IP and device",
     EMPTY_FIELDS: "Username and password are required",
     BAD_CREDENTIALS: "Wrong username or password",
-    RATE_LIMITED: "Too many failed attempts, try again in 15 minutes",
+    RATE_LIMITED: "Too many failed attempts. Wait 15 minutes, or reset your password by email",
+    resetByEmail: "Reset password by email",
     DISABLED: "This account has been disabled by an admin",
     UNKNOWN: "Sign-in failed, please retry",
   },
@@ -91,6 +94,7 @@ export default function LoginForm({ next }: { next: string }) {
 
       setError(res?.error ?? "UNKNOWN");
     } catch (err) {
+      if (reloadIfStaleDeployment(err)) return;
       console.error("Login error:", err);
       setError("UNKNOWN");
     }
@@ -182,6 +186,15 @@ export default function LoginForm({ next }: { next: string }) {
         </div>
 
         <AuthError message={error ? t[error] : null} />
+
+        {error === "RATE_LIMITED" && (
+          <Link
+            href={`/forgot-password${formData.username ? `?account=${encodeURIComponent(formData.username)}` : ""}`}
+            className="block w-full text-center py-4 rounded-2xl border border-[#ffa116]/40 bg-orange-50 text-[#e08a00] font-bold hover:bg-orange-100 transition-colors"
+          >
+            {t.resetByEmail}
+          </Link>
+        )}
 
         <AuthSubmit pending={isPending} label={t.submit} pendingLabel={t.pending} />
       </form>
