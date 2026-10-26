@@ -15,6 +15,22 @@ import {
   SolutionsUpdate,
 } from '@/types/editor';
 
+// Tags are stored comma-joined, so commas (and their Chinese forms) separate
+// tags rather than belong to one
+const splitTags = (text: string) =>
+  text
+    .split(/[,，、]/)
+    .map((tag) => tag.trim())
+    .filter(Boolean);
+
+const mergeTags = (tags: string[], draft: string) => {
+  const merged = [...tags];
+  for (const tag of splitTags(draft)) {
+    if (!merged.includes(tag)) merged.push(tag);
+  }
+  return merged;
+};
+
 export default function QuestionEditor({
   mode = 'create',
   initialData,
@@ -40,6 +56,8 @@ export default function QuestionEditor({
   };
   const [formData, setFormData] = useState<EditorFormData>(startData);
   const [isSaving, setIsSaving] = useState(false);
+  // Text typed in the tag box that has not become a tag yet
+  const [tagDraft, setTagDraft] = useState('');
 
   const handleUpdate = (field: string, value: any) => {
     setFormData((prev) => ({ ...prev, [field]: value }));
@@ -53,8 +71,14 @@ export default function QuestionEditor({
 
     setIsSaving(true);
 
+    // Whatever is still sitting in the tag box counts too, so a tag typed
+    // without pressing Enter is not silently dropped
+    const tags = mergeTags(formData.tags, tagDraft);
+    setFormData((prev) => ({ ...prev, tags }));
+    setTagDraft('');
+
     try {
-      const result = await saveQuestionAction(formData);
+      const result = await saveQuestionAction({ ...formData, tags });
 
       if (result.success) {
         toast.success(
@@ -75,11 +99,11 @@ export default function QuestionEditor({
     router.back();
   };
 
-  const handleAddTag = (tag: string) => {
-    const trimmedTag = tag.trim();
-    if (trimmedTag && !formData.tags.includes(trimmedTag)) {
-      handleUpdate('tags', [...formData.tags, trimmedTag]);
-    }
+  // Turns the draft into tags (it may hold several, separated by commas)
+  const commitTagDraft = () => {
+    if (!tagDraft.trim()) return;
+    setFormData((prev) => ({ ...prev, tags: mergeTags(prev.tags, tagDraft) }));
+    setTagDraft('');
   };
 
   const handleRemoveTag = (tagToRemove: string) => {
@@ -118,7 +142,9 @@ export default function QuestionEditor({
             link={formData.link}
             masteryLevel={formData.masteryLevel}
             onUpdate={handleUpdate}
-            onAddTag={handleAddTag}
+            tagDraft={tagDraft}
+            onTagDraftChange={setTagDraft}
+            onCommitTags={commitTagDraft}
             onRemoveTag={handleRemoveTag}
           />
 

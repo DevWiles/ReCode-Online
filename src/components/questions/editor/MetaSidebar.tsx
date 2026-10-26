@@ -1,4 +1,3 @@
-import { useState } from "react";
 import { useTranslation } from "@/hooks/useTranslation";
 import { getDifficultyColor } from "@/hooks";
 
@@ -25,7 +24,11 @@ interface MetaSidebarProps {
   link: string;
   masteryLevel: number;
   onUpdate: (field: string, value: any) => void;
-  onAddTag: (tag: string) => void;
+  // Typed text not yet turned into tags; the editor owns it so saving can
+  // include it
+  tagDraft: string;
+  onTagDraftChange: (value: string) => void;
+  onCommitTags: () => void;
   onRemoveTag: (tag: string) => void;
 }
 
@@ -35,18 +38,19 @@ export const MetaSidebar = ({
   link,
   masteryLevel,
   onUpdate,
-  onAddTag,
+  tagDraft,
+  onTagDraftChange,
+  onCommitTags,
   onRemoveTag,
 }: MetaSidebarProps) => {
   const { t } = useTranslation();
 
-  const [tagInput, setTagInput] = useState("");
-
-  const handleKeyDown = (e: React.KeyboardEvent) => {
+  const handleKeyDown = (e: React.KeyboardEvent<HTMLInputElement>) => {
+    // Enter while a Chinese IME is composing only confirms the characters
+    if (e.nativeEvent.isComposing) return;
     if (e.key === "Enter") {
       e.preventDefault();
-      onAddTag(tagInput);
-      setTagInput("");
+      onCommitTags();
     }
   };
 
@@ -142,9 +146,10 @@ export const MetaSidebar = ({
           ))}
           <input
             type="text"
-            value={tagInput}
-            onChange={(e) => setTagInput(e.target.value)}
+            value={tagDraft}
+            onChange={(e) => onTagDraftChange(e.target.value)}
             onKeyDown={handleKeyDown}
+            onBlur={onCommitTags}
             placeholder={
               tags.length === 0
                 ? t("metaSidebar.tagInputPlaceholder")
