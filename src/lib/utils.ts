@@ -16,3 +16,13 @@ export function getNextReviewDate(days: number): Date {
   date.setHours(DAY_START_HOUR, 0, 0, 0);
   return date;
 }
+// The stored link when there is one, otherwise a guess from the slug or title
+export function getLeetCodeUrl(
+  title: string,
+  url: string | null,
+  slug: string | null,
+): string {
+  if (url) return url;
+  const finalSlug = slug || title.toLowerCase().replace(/\s+/g, '-');
+  return `https://leetcode.com/problems/${finalSlug}/`;
+}

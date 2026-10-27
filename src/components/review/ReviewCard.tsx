@@ -6,7 +6,7 @@ import { ExternalLink, Calendar } from 'lucide-react';
 
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
-import { cn } from '@/lib/utils';
+import { cn, getLeetCodeUrl } from '@/lib/utils';
 
 import { ReviewTask } from '@/types/review';
 import { MASTERY_COLORS } from '@/constants';
@@ -21,16 +21,6 @@ interface ReviewCardProps {
   onRate: (score: number) => void;
   onPreview: () => void;
 }
-
-const getLeetCodeUrl = (
-  title: string,
-  url: string | null,
-  slug: string | null,
-) => {
-  if (url) return url;
-  const finalSlug = slug || title.toLowerCase().replace(/\s+/g, '-');
-  return `https://leetcode.com/problems/${finalSlug}/`;
-};
 
 const RateButton = ({
   score,

@@ -37,6 +37,7 @@ export async function loadChallengeQuestion(
     title: p.problem.title,
     difficulty: p.problem.difficulty,
     url: p.problem.url,
+    slug: p.problem.slug,
     tags: p.problem.tags.split(',').filter(Boolean),
     solutions: p.submissions,
   };

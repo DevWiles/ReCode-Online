@@ -41,7 +41,6 @@ export const TRANSLATIONS = {
     },
     challenge: {
       title: '一题多解',
-      subtitle: '随机抽一道有多种解法的题，看你能想起几种。想玩就来，没有截止时间。',
       score: '得分',
       streak: '连击',
       rounds: '已答',
@@ -50,18 +49,12 @@ export const TRANSLATIONS = {
       emptyDescription: '给题目添加 2 种及以上的解法后，它就会进入挑战题库。',
       goQuestions: '去题目列表',
       poolSize: '题库里有 {{count}} 道多解题',
-      rule1: '每轮随机抽一道，这一局里不会重复。先想有哪些解法，再逐个翻开解法卡，自己判断想到没有。',
-      rule2: '没看提示就想到 +{{cold}}，看了解法名提示后想到 +{{hinted}}，没想到不得分。',
-      rule3: '一道题的解法全部想到算「完美」，连续完美每次额外 +{{bonus}} × 连击数。',
       rule4: '挑战结果不影响每日复习的熟练度和复习时间。',
       best: '最高分',
       start: '开始挑战',
       openProblem: '打开题目',
-      prompt: '这道题有 {{count}} 种解法，你能想起几种？',
-      scratchPlaceholder: '先在这里写下你想到的思路（不会保存）',
       roundScore: '本轮 +{{score}}',
       perfectBonus: '完美！{{streak}} 连击 +{{bonus}}',
-      roundHint: '翻开所有解法卡并判断后，本轮结算',
       skip: '换一题',
       end: '结束挑战',
       next: '下一题',
@@ -69,18 +62,26 @@ export const TRANSLATIONS = {
       allDone: '题库全部挑战完了',
       runOver: '本局结束',
       newRecord: '新纪录！',
-      recallRate: '想起率',
       perfectRounds: '完美轮数',
       bestStreak: '最高连击',
       again: '再来一局',
       solutionN: '解法 {{n}}',
-      hint: '提示',
-      hintTitle: '先看解法名，想到只得 {{points}} 分',
-      reveal: '翻开',
-      judgeQuestion: '这个解法你想到了吗？',
-      missed: '没想到',
-      got: '想到了',
       drawFailed: '抽题失败，请重试',
+      subtitle: '随机抽一道有多种解法的题，按给出的解法逐个去力扣重新做一遍。想玩就来，没有截止时间。',
+      rule1: '每轮随机抽一道，这一局里不会重复。每种解法都写出了名字，点「去力扣做」用这个方法重做一遍，回来判断做没做出来。',
+      rule2: '直接做出来 +{{cold}}，偷看了自己保存的代码再做出来 +{{hinted}}，没做出来不得分。',
+      rule3: '一道题的解法全部做出来算「完美」，连续完美每次额外 +{{bonus}} × 连击数。',
+      prompt: '这道题有 {{count}} 种解法，逐个去力扣用对应的方法做一遍',
+      roundHint: '每种解法都判断完后，本轮结算',
+      solveOnLeetCode: '去力扣做',
+      peekCode: '偷看代码',
+      viewCode: '看代码',
+      hideCode: '收起代码',
+      peekTitle: '判断前看了代码，做出来只得 {{points}} 分',
+      unnamed: '未命名解法',
+      missed: '没做出来',
+      got: '做出来了',
+      recallRate: '完成率',
     },
     todayFocus: {
       title: '今日焦点',
@@ -294,7 +295,6 @@ export const TRANSLATIONS = {
     },
     challenge: {
       title: 'Multi-Solution Challenge',
-      subtitle: 'Draw a random question with several solutions and see how many you can recall. No deadlines, play whenever.',
       score: 'Score',
       streak: 'Streak',
       rounds: 'Rounds',
@@ -303,18 +303,12 @@ export const TRANSLATIONS = {
       emptyDescription: 'Give a question 2 or more solutions and it joins the challenge pool.',
       goQuestions: 'Go to questions',
       poolSize: '{{count}} multi-solution questions in the pool',
-      rule1: 'Each round draws a random question, never repeating within a run. Think of the solutions first, then flip each card and judge yourself.',
-      rule2: 'Recalled without a hint +{{cold}}, after peeking at the name +{{hinted}}, missed 0.',
-      rule3: 'Recall every solution for a perfect round; consecutive perfect rounds add +{{bonus}} × streak.',
       rule4: 'Challenge results never change your daily review schedule or mastery.',
       best: 'Best',
       start: 'Start',
       openProblem: 'Open problem',
-      prompt: 'This question has {{count}} solutions. How many can you recall?',
-      scratchPlaceholder: 'Jot down your ideas first (not saved)',
       roundScore: 'Round +{{score}}',
       perfectBonus: 'Perfect! {{streak}} streak +{{bonus}}',
-      roundHint: 'Flip and judge every card to finish the round',
       skip: 'Skip',
       end: 'End run',
       next: 'Next',
@@ -322,18 +316,26 @@ export const TRANSLATIONS = {
       allDone: 'You cleared the whole pool',
       runOver: 'Run over',
       newRecord: 'New record!',
-      recallRate: 'Recall rate',
       perfectRounds: 'Perfect rounds',
       bestStreak: 'Best streak',
       again: 'Play again',
       solutionN: 'Solution {{n}}',
-      hint: 'Hint',
-      hintTitle: 'Show the name first; recalling then scores {{points}}',
-      reveal: 'Flip',
-      judgeQuestion: 'Did you think of this one?',
-      missed: 'Missed',
-      got: 'Got it',
       drawFailed: 'Failed to draw a question, try again',
+      subtitle: 'Draw a random question with several solutions and redo each one on LeetCode. No deadlines, play whenever.',
+      rule1: 'Each round draws a random question, never repeating within a run. Every solution is named: hit "Solve on LeetCode", redo it that way, then judge yourself.',
+      rule2: 'Solved cold +{{cold}}, after peeking at your saved code +{{hinted}}, not solved 0.',
+      rule3: 'Solve every approach for a perfect round; consecutive perfect rounds add +{{bonus}} × streak.',
+      prompt: 'This question has {{count}} solutions. Redo each one on LeetCode',
+      roundHint: 'Judge every solution to finish the round',
+      solveOnLeetCode: 'Solve on LeetCode',
+      peekCode: 'Peek at code',
+      viewCode: 'View code',
+      hideCode: 'Hide code',
+      peekTitle: 'Peeking before judging: solving then scores {{points}}',
+      unnamed: 'Unnamed solution',
+      missed: 'Not solved',
+      got: 'Solved',
+      recallRate: 'Solve rate',
     },
     todayFocus: {
       title: "Today's Focus",
@@ -559,7 +561,6 @@ export type TranslationKeys =
   | 'challenge.start'
   | 'challenge.openProblem'
   | 'challenge.prompt'
-  | 'challenge.scratchPlaceholder'
   | 'challenge.roundScore'
   | 'challenge.perfectBonus'
   | 'challenge.roundHint'
@@ -575,13 +576,15 @@ export type TranslationKeys =
   | 'challenge.bestStreak'
   | 'challenge.again'
   | 'challenge.solutionN'
-  | 'challenge.hint'
-  | 'challenge.hintTitle'
-  | 'challenge.reveal'
-  | 'challenge.judgeQuestion'
   | 'challenge.missed'
   | 'challenge.got'
   | 'challenge.drawFailed'
+  | 'challenge.solveOnLeetCode'
+  | 'challenge.peekCode'
+  | 'challenge.viewCode'
+  | 'challenge.hideCode'
+  | 'challenge.peekTitle'
+  | 'challenge.unnamed'
   | 'masterybar.title'
   | 'masterybar.questions'
   | 'masterybar.clickHint'

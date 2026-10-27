@@ -12,16 +12,15 @@ import 'highlight.js/styles/github-dark.css';
 import { drawChallengeAction } from '@/actions/challenge';
 import { useTranslation } from '@/hooks/useTranslation';
 import { getDifficultyColor } from '@/hooks';
-import { cn } from '@/lib/utils';
+import { cn, getLeetCodeUrl } from '@/lib/utils';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 
 import {
   Check,
+  Code2,
   ExternalLink,
-  Eye,
   Flame,
-  Lightbulb,
   Shuffle,
   Swords,
   Trophy,
@@ -30,7 +29,7 @@ import {
 
 import type { ChallengeQuestion } from '@/types/challenge';
 
-// Recalled cold / recalled after peeking at the solution's name
+// Solved on LeetCode without / after peeking at the saved code
 const POINTS_COLD = 100;
 const POINTS_HINTED = 50;
 // Per step of the perfect-round streak
@@ -39,8 +38,9 @@ const STREAK_BONUS = 50;
 type Verdict = 'got' | 'missed';
 
 interface Slot {
-  hinted: boolean;
-  revealed: boolean;
+  // Looked at the saved code before judging, which halves the points
+  peeked: boolean;
+  showCode: boolean;
   verdict: Verdict | null;
 }
 
@@ -65,7 +65,7 @@ const EMPTY_STATS: RunStats = {
 };
 
 const slotPoints = (slot: Slot) =>
-  slot.verdict === 'got' ? (slot.hinted ? POINTS_HINTED : POINTS_COLD) : 0;
+  slot.verdict === 'got' ? (slot.peeked ? POINTS_HINTED : POINTS_COLD) : 0;
 
 const fill = (text: string, values: Record<string, string | number>) =>
   Object.entries(values).reduce(
@@ -111,7 +111,6 @@ export default function ChallengeClient({
   const [remaining, setRemaining] = useState(poolSize);
   const [stats, setStats] = useState<RunStats>(EMPTY_STATS);
   const [roundBonus, setRoundBonus] = useState(0);
-  const [scratch, setScratch] = useState('');
   const [drawing, setDrawing] = useState(false);
   const [exhausted, setExhausted] = useState(false);
   // Read after hydration (the server has no localStorage); a record set in
@@ -127,7 +126,7 @@ export default function ChallengeClient({
 
   const roundDone =
     slots.length > 0 && slots.every((slot) => slot.verdict !== null);
-  const roundTouched = slots.some((slot) => slot.hinted || slot.revealed);
+  const roundTouched = slots.some((slot) => slot.peeked || slot.verdict !== null);
   const roundScore = slots.reduce((sum, slot) => sum + slotPoints(slot), 0);
 
   const draw = async (seenSoFar: string[], stats: RunStats) => {
@@ -148,15 +147,14 @@ export default function ChallengeClient({
     setQuestion(result.question);
     setSlots(
       result.question.solutions.map(() => ({
-        hinted: false,
-        revealed: false,
+        peeked: false,
+        showCode: false,
         verdict: null,
       })),
     );
     setSeen([...seenSoFar, result.question.id]);
     setRemaining(result.remaining);
     setRoundBonus(0);
-    setScratch('');
     setPhase('playing');
   };
 
@@ -376,16 +374,9 @@ export default function ChallengeClient({
                     count: question.solutions.length,
                   })}
                 </p>
-                <textarea
-                  value={scratch}
-                  onChange={(e) => setScratch(e.target.value)}
-                  placeholder={t('challenge.scratchPlaceholder')}
-                  rows={3}
-                  className="w-full resize-y rounded-2xl border border-gray-200 bg-white/70 px-4 py-3 text-gray-800 placeholder:text-gray-400 focus:outline-none focus:ring-4 focus:ring-[#ffa116]/10 focus:border-[#ffa116]/50"
-                />
               </div>
 
-              {/* Solutions, face down */}
+              {/* One card per solution: redo it on LeetCode with that approach */}
               <div className="grid gap-4">
                 {question.solutions.map((solution, index) => (
                   <SolutionSlot
@@ -394,9 +385,20 @@ export default function ChallengeClient({
                     name={solution.label.trim()}
                     language={solution.language}
                     code={solution.code}
+                    problemUrl={getLeetCodeUrl(
+                      question.title,
+                      question.url,
+                      question.slug,
+                    )}
                     slot={slots[index]}
-                    onHint={() => updateSlot(index, { hinted: true })}
-                    onReveal={() => updateSlot(index, { revealed: true })}
+                    onToggleCode={() =>
+                      updateSlot(index, {
+                        showCode: !slots[index].showCode,
+                        // Reading the answer before judging counts as a peek
+                        peeked:
+                          slots[index].peeked || slots[index].verdict === null,
+                      })
+                    }
                     onJudge={(verdict) => updateSlot(index, { verdict })}
                   />
                 ))}
@@ -560,18 +562,18 @@ function SolutionSlot({
   name,
   language,
   code,
+  problemUrl,
   slot,
-  onHint,
-  onReveal,
+  onToggleCode,
   onJudge,
 }: {
   index: number;
   name: string;
   language: string;
   code: string;
+  problemUrl: string;
   slot: Slot;
-  onHint: () => void;
-  onReveal: () => void;
+  onToggleCode: () => void;
   onJudge: (verdict: Verdict) => void;
 }) {
   const { t } = useTranslation();
@@ -586,92 +588,96 @@ function SolutionSlot({
           ? 'bg-emerald-50/60 border-emerald-200'
           : slot.verdict === 'missed'
             ? 'bg-rose-50/50 border-rose-200'
-            : slot.revealed
-              ? 'bg-white border-[#ffa116]/40 shadow-lg shadow-orange-100'
-              : 'bg-white/60 border-dashed border-gray-300',
+            : 'bg-white/80 border-gray-200 shadow-sm',
       )}
     >
       <div className="flex flex-wrap items-center gap-3 px-6 py-4">
         <span className="font-black text-gray-300 text-lg">{numbered}</span>
-        <span className="flex-1 min-w-0 font-bold text-gray-800 truncate">
-          {slot.hinted || slot.revealed ? name || '' : '???'}
+        <span
+          className={cn(
+            'flex-1 min-w-0 text-lg font-bold truncate',
+            name ? 'text-gray-900' : 'text-gray-400 italic',
+          )}
+        >
+          {name || t('challenge.unnamed')}
         </span>
-        {slot.revealed && (
-          <Badge
-            variant="secondary"
-            className="font-mono text-xs bg-gray-100 text-gray-500 rounded-lg"
-          >
-            {language}
-          </Badge>
-        )}
+        <Badge
+          variant="secondary"
+          className="font-mono text-xs bg-gray-100 text-gray-500 rounded-lg"
+        >
+          {language}
+        </Badge>
 
-        {!slot.revealed && (
+        {slot.verdict ? (
           <>
-            {!slot.hinted && name && (
-              <Button
-                variant="ghost"
-                size="sm"
-                onClick={onHint}
-                className="h-10 rounded-xl gap-1.5 text-gray-500"
-                title={fill(t('challenge.hintTitle'), { points: POINTS_HINTED })}
-              >
-                <Lightbulb size={16} /> {t('challenge.hint')}
-              </Button>
-            )}
+            <Button
+              variant="ghost"
+              size="sm"
+              onClick={onToggleCode}
+              className="h-10 rounded-xl gap-1.5 text-gray-500"
+            >
+              <Code2 size={16} />
+              {slot.showCode ? t('challenge.hideCode') : t('challenge.viewCode')}
+            </Button>
+            <span
+              className={cn(
+                'font-extrabold',
+                slot.verdict === 'got' ? 'text-emerald-600' : 'text-rose-500',
+              )}
+            >
+              +{slotPoints(slot)}
+            </span>
+          </>
+        ) : (
+          <a href={problemUrl} target="_blank" rel="noopener noreferrer">
             <Button
               size="sm"
-              onClick={onReveal}
               className="h-10 rounded-xl gap-1.5 bg-gray-900 hover:bg-black font-bold"
             >
-              <Eye size={16} /> {t('challenge.reveal')}
+              {t('challenge.solveOnLeetCode')} <ExternalLink size={14} />
             </Button>
-          </>
-        )}
-
-        {slot.verdict && (
-          <span
-            className={cn(
-              'font-extrabold',
-              slot.verdict === 'got' ? 'text-emerald-600' : 'text-rose-500',
-            )}
-          >
-            +{slotPoints(slot)}
-          </span>
+          </a>
         )}
       </div>
 
-      {slot.revealed && (
-        <>
-          <div
-            className="max-h-[420px] overflow-auto text-sm prose max-w-none
-            prose-pre:bg-[#1e1e1e] prose-pre:m-0 prose-pre:rounded-none prose-pre:p-5
-            prose-code:before:content-none! prose-code:after:content-none!"
+      {slot.showCode && (
+        <div
+          className="max-h-[420px] overflow-auto text-sm prose max-w-none
+          prose-pre:bg-[#1e1e1e] prose-pre:m-0 prose-pre:rounded-none prose-pre:p-5
+          prose-code:before:content-none! prose-code:after:content-none!"
+        >
+          <ReactMarkdown rehypePlugins={[rehypeHighlight]}>
+            {`\`\`\`${language || 'text'}\n${code}\n\`\`\``}
+          </ReactMarkdown>
+        </div>
+      )}
+
+      {!slot.verdict && (
+        <div className="flex flex-wrap items-center justify-end gap-3 px-6 pb-4 pt-1">
+          <Button
+            variant="ghost"
+            size="sm"
+            onClick={onToggleCode}
+            title={fill(t('challenge.peekTitle'), { points: POINTS_HINTED })}
+            className="mr-auto h-10 rounded-xl gap-1.5 text-gray-400 hover:text-gray-700"
           >
-            <ReactMarkdown rehypePlugins={[rehypeHighlight]}>
-              {`\`\`\`${language || 'text'}\n${code}\n\`\`\``}
-            </ReactMarkdown>
-          </div>
-          {!slot.verdict && (
-            <div className="flex items-center justify-end gap-3 px-6 py-4">
-              <span className="mr-auto text-sm font-semibold text-gray-500">
-                {t('challenge.judgeQuestion')}
-              </span>
-              <Button
-                variant="outline"
-                onClick={() => onJudge('missed')}
-                className="h-11 rounded-xl gap-1.5 border-rose-200 text-rose-600 hover:bg-rose-500 hover:text-white font-bold"
-              >
-                <X size={16} /> {t('challenge.missed')}
-              </Button>
-              <Button
-                onClick={() => onJudge('got')}
-                className="h-11 rounded-xl gap-1.5 bg-emerald-500 hover:bg-emerald-600 text-white font-bold"
-              >
-                <Check size={16} /> {t('challenge.got')}
-              </Button>
-            </div>
-          )}
-        </>
+            <Code2 size={16} />
+            {slot.showCode ? t('challenge.hideCode') : t('challenge.peekCode')}
+          </Button>
+          <Button
+            variant="outline"
+            onClick={() => onJudge('missed')}
+            className="h-11 rounded-xl gap-1.5 border-rose-200 text-rose-600 hover:bg-rose-500 hover:text-white font-bold"
+          >
+            <X size={16} /> {t('challenge.missed')}
+          </Button>
+          <Button
+            onClick={() => onJudge('got')}
+            className="h-11 rounded-xl gap-1.5 bg-emerald-500 hover:bg-emerald-600 text-white font-bold"
+          >
+            <Check size={16} /> {t('challenge.got')}
+          </Button>
+        </div>
       )}
     </div>
   );

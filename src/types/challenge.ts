@@ -7,6 +7,7 @@ export interface ChallengeQuestion {
   title: string;
   difficulty: string;
   url: string | null;
+  slug: string | null;
   tags: string[];
   solutions: SolutionData[];
 }
