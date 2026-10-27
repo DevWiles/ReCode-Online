@@ -16,7 +16,7 @@ if %errorlevel% neq 0 goto ERROR_EXIT
 
 :DB_CHECK
 echo [1/3] Dependencies are ready.
-if not exist ".env" copy ".env.example" ".env" >nul
+call node scripts\init-env.mjs
 if exist "prisma\dev.db" goto LAUNCH
 echo [2/3] Initializing SQLite database...
 call npx prisma generate
