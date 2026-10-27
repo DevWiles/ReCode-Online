@@ -41,7 +41,7 @@ export const TRANSLATIONS = {
     },
     challenge: {
       title: '一题多解',
-      subtitle: '随机抽一道有多种解法的题，逐个复习它的每种解法。想练就来，没有截止时间。',
+      subtitle: '随机抽一道有多种解法的题，逐个复习它的每种解法。',
       prompt: '这道题有 {{count}} 种解法，逐个复习',
       solutionN: '解法 {{n}}',
       unnamed: '未命名解法',
@@ -282,7 +282,7 @@ export const TRANSLATIONS = {
     },
     challenge: {
       title: 'Multi-Solution',
-      subtitle: 'Draw a random question with several solutions and review each of its solutions. No deadlines, practice whenever.',
+      subtitle: 'Draw a random question with several solutions and review each of its solutions.',
       prompt: 'This question has {{count}} solutions. Review each one',
       solutionN: 'Solution {{n}}',
       unnamed: 'Unnamed solution',
