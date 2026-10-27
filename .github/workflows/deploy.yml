@@ -38,6 +38,8 @@ jobs:
       # An out-of-date client silently ignores DATABASE_URL and opens the wrong
       # SQLite file, so regenerate it explicitly from the current schema
       - name: Generate Prisma client
+        env:
+          DATABASE_URL: file:${{ github.workspace }}/ci.db
         run: npx prisma generate
 
       # The root layout queries the database while pages are being generated,
