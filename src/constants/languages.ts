@@ -39,6 +39,49 @@ export const TRANSLATIONS = {
       today: '今天',
       close: '关闭',
     },
+    challenge: {
+      title: '一题多解',
+      subtitle: '随机抽一道有多种解法的题，看你能想起几种。想玩就来，没有截止时间。',
+      score: '得分',
+      streak: '连击',
+      rounds: '已答',
+      left: '剩余',
+      emptyTitle: '还没有可以挑战的题',
+      emptyDescription: '给题目添加 2 种及以上的解法后，它就会进入挑战题库。',
+      goQuestions: '去题目列表',
+      poolSize: '题库里有 {{count}} 道多解题',
+      rule1: '每轮随机抽一道，这一局里不会重复。先想有哪些解法，再逐个翻开解法卡，自己判断想到没有。',
+      rule2: '没看提示就想到 +{{cold}}，看了解法名提示后想到 +{{hinted}}，没想到不得分。',
+      rule3: '一道题的解法全部想到算「完美」，连续完美每次额外 +{{bonus}} × 连击数。',
+      rule4: '挑战结果不影响每日复习的熟练度和复习时间。',
+      best: '最高分',
+      start: '开始挑战',
+      openProblem: '打开题目',
+      prompt: '这道题有 {{count}} 种解法，你能想起几种？',
+      scratchPlaceholder: '先在这里写下你想到的思路（不会保存）',
+      roundScore: '本轮 +{{score}}',
+      perfectBonus: '完美！{{streak}} 连击 +{{bonus}}',
+      roundHint: '翻开所有解法卡并判断后，本轮结算',
+      skip: '换一题',
+      end: '结束挑战',
+      next: '下一题',
+      finish: '看结算',
+      allDone: '题库全部挑战完了',
+      runOver: '本局结束',
+      newRecord: '新纪录！',
+      recallRate: '想起率',
+      perfectRounds: '完美轮数',
+      bestStreak: '最高连击',
+      again: '再来一局',
+      solutionN: '解法 {{n}}',
+      hint: '提示',
+      hintTitle: '先看解法名，想到只得 {{points}} 分',
+      reveal: '翻开',
+      judgeQuestion: '这个解法你想到了吗？',
+      missed: '没想到',
+      got: '想到了',
+      drawFailed: '抽题失败，请重试',
+    },
     todayFocus: {
       title: '今日焦点',
       suggestedReview: '推荐复习',
@@ -249,6 +292,49 @@ export const TRANSLATIONS = {
       today: 'Today',
       close: 'Close',
     },
+    challenge: {
+      title: 'Multi-Solution Challenge',
+      subtitle: 'Draw a random question with several solutions and see how many you can recall. No deadlines, play whenever.',
+      score: 'Score',
+      streak: 'Streak',
+      rounds: 'Rounds',
+      left: 'Left',
+      emptyTitle: 'Nothing to challenge yet',
+      emptyDescription: 'Give a question 2 or more solutions and it joins the challenge pool.',
+      goQuestions: 'Go to questions',
+      poolSize: '{{count}} multi-solution questions in the pool',
+      rule1: 'Each round draws a random question, never repeating within a run. Think of the solutions first, then flip each card and judge yourself.',
+      rule2: 'Recalled without a hint +{{cold}}, after peeking at the name +{{hinted}}, missed 0.',
+      rule3: 'Recall every solution for a perfect round; consecutive perfect rounds add +{{bonus}} × streak.',
+      rule4: 'Challenge results never change your daily review schedule or mastery.',
+      best: 'Best',
+      start: 'Start',
+      openProblem: 'Open problem',
+      prompt: 'This question has {{count}} solutions. How many can you recall?',
+      scratchPlaceholder: 'Jot down your ideas first (not saved)',
+      roundScore: 'Round +{{score}}',
+      perfectBonus: 'Perfect! {{streak}} streak +{{bonus}}',
+      roundHint: 'Flip and judge every card to finish the round',
+      skip: 'Skip',
+      end: 'End run',
+      next: 'Next',
+      finish: 'See results',
+      allDone: 'You cleared the whole pool',
+      runOver: 'Run over',
+      newRecord: 'New record!',
+      recallRate: 'Recall rate',
+      perfectRounds: 'Perfect rounds',
+      bestStreak: 'Best streak',
+      again: 'Play again',
+      solutionN: 'Solution {{n}}',
+      hint: 'Hint',
+      hintTitle: 'Show the name first; recalling then scores {{points}}',
+      reveal: 'Flip',
+      judgeQuestion: 'Did you think of this one?',
+      missed: 'Missed',
+      got: 'Got it',
+      drawFailed: 'Failed to draw a question, try again',
+    },
     todayFocus: {
       title: "Today's Focus",
       suggestedReview: 'Suggested Review',
@@ -455,6 +541,47 @@ export type TranslationKeys =
   | 'home.toReview'
   | 'home.toReviewFooter'
   | 'home.masteryRate'
+  | 'challenge.title'
+  | 'challenge.subtitle'
+  | 'challenge.score'
+  | 'challenge.streak'
+  | 'challenge.rounds'
+  | 'challenge.left'
+  | 'challenge.emptyTitle'
+  | 'challenge.emptyDescription'
+  | 'challenge.goQuestions'
+  | 'challenge.poolSize'
+  | 'challenge.rule1'
+  | 'challenge.rule2'
+  | 'challenge.rule3'
+  | 'challenge.rule4'
+  | 'challenge.best'
+  | 'challenge.start'
+  | 'challenge.openProblem'
+  | 'challenge.prompt'
+  | 'challenge.scratchPlaceholder'
+  | 'challenge.roundScore'
+  | 'challenge.perfectBonus'
+  | 'challenge.roundHint'
+  | 'challenge.skip'
+  | 'challenge.end'
+  | 'challenge.next'
+  | 'challenge.finish'
+  | 'challenge.allDone'
+  | 'challenge.runOver'
+  | 'challenge.newRecord'
+  | 'challenge.recallRate'
+  | 'challenge.perfectRounds'
+  | 'challenge.bestStreak'
+  | 'challenge.again'
+  | 'challenge.solutionN'
+  | 'challenge.hint'
+  | 'challenge.hintTitle'
+  | 'challenge.reveal'
+  | 'challenge.judgeQuestion'
+  | 'challenge.missed'
+  | 'challenge.got'
+  | 'challenge.drawFailed'
   | 'masterybar.title'
   | 'masterybar.questions'
   | 'masterybar.clickHint'

@@ -1,4 +1,4 @@
-import { LayoutGrid, ListTodo, BarChart2, HelpCircle, ScrollText, Users, ShieldCheck } from "lucide-react";
+import { LayoutGrid, ListTodo, BarChart2, HelpCircle, ScrollText, Users, ShieldCheck, Swords } from "lucide-react";
 
 import type { CardVariant, NavSection } from "@/types";
 
@@ -14,6 +14,12 @@ export const SIDEBAR_NAV: NavSection[] = [
         path: "/questions",
       },
       { en_name: "Review", zh_name: "复习", icon: BarChart2, path: "/review" },
+      {
+        en_name: "Challenge",
+        zh_name: "一题多解",
+        icon: Swords,
+        path: "/challenge",
+      },
     ],
   },
   {
