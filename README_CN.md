@@ -73,6 +73,7 @@ npm install
 此项目使用本地的 `SQLite` 数据库。请执行以下命令来生成数据库文件：
 
 ```bash
+cp .env.example .env
 npx prisma generate
 npx prisma db push
 ```

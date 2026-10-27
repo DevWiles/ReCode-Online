@@ -43,7 +43,7 @@ const generatePassword = (length = 20) => {
 
 const [, , usernameArg, passwordArg] = process.argv;
 
-const username = usernameArg || "devwiles";
+const username = usernameArg || "admin";
 const generated = !passwordArg;
 const password = passwordArg || generatePassword();
 

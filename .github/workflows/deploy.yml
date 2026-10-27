@@ -9,9 +9,11 @@ concurrency:
   group: deploy
   cancel-in-progress: false
 
+# The target server is kept out of the repo: set the repository secrets
+# SERVER_HOST and SERVER_USER (plus SSH_PRIVATE_KEY) to enable deploys
 env:
-  SERVER_HOST: SERVER_HOST_REDACTED
-  SERVER_USER: recode
+  SERVER_HOST: ${{ secrets.SERVER_HOST }}
+  SERVER_USER: ${{ secrets.SERVER_USER }}
   DEPLOY_PATH: /home/recode
   SERVICE: recode
   APP_PORT: "3200"
@@ -75,21 +77,25 @@ jobs:
           rm -f payload/.env payload/.env.*
           du -sh payload
 
-      - name: Guard (needs SSH_PRIVATE_KEY)
+      - name: Guard (needs SSH_PRIVATE_KEY, SERVER_HOST, SERVER_USER)
         id: guard
+        env:
+          HAS_KEY: ${{ secrets.SSH_PRIVATE_KEY != '' }}
         run: |
-          if [ -n "${{ secrets.SSH_PRIVATE_KEY }}" ]; then
+          if [ "$HAS_KEY" = "true" ] && [ -n "$SERVER_HOST" ] && [ -n "$SERVER_USER" ]; then
             echo "go=1" >> "$GITHUB_OUTPUT"
           else
-            echo "::warning::未配置 Secret SSH_PRIVATE_KEY，跳过部署。"
+            echo "::warning::未配置 Secret SSH_PRIVATE_KEY / SERVER_HOST / SERVER_USER，跳过部署。"
             echo "go=0" >> "$GITHUB_OUTPUT"
           fi
 
       - name: Setup SSH
         if: steps.guard.outputs.go == '1'
+        env:
+          SSH_PRIVATE_KEY: ${{ secrets.SSH_PRIVATE_KEY }}
         run: |
           mkdir -p ~/.ssh
-          printf '%s\n' "${{ secrets.SSH_PRIVATE_KEY }}" > ~/.ssh/deploy_key
+          printf '%s\n' "$SSH_PRIVATE_KEY" > ~/.ssh/deploy_key
           chmod 600 ~/.ssh/deploy_key
           ssh-keyscan -H "$SERVER_HOST" >> ~/.ssh/known_hosts 2>/dev/null
 

@@ -73,6 +73,7 @@ Note: This may take some time. If the installation fails due to network issues, 
 This project uses a local `SQLite` database. Run the following commands to generate the database files:
 
 ```bash
+cp .env.example .env
 npx prisma generate
 npx prisma db push
 ```

@@ -16,6 +16,8 @@ else
     echo "[1/3] Dependencies already installed."
 fi
 
+[ -f ".env" ] || cp .env.example .env
+
 if [ ! -f "prisma/dev.db" ]; then
     echo "[2/3] Initializing SQLite database..."
     npx prisma generate
