@@ -105,13 +105,13 @@ jobs:
         if: steps.guard.outputs.go == '1'
         run: |
           rsync -az --delete \
-            -e "ssh -i ~/.ssh/deploy_key -o StrictHostKeyChecking=no" \
+            -e "ssh -i ~/.ssh/deploy_key -o StrictHostKeyChecking=no -o LogLevel=ERROR" \
             payload/ "$SERVER_USER@$SERVER_HOST:$DEPLOY_PATH/staging/"
 
       - name: Migrate, swap in and restart
         if: steps.guard.outputs.go == '1'
         run: |
-          ssh -i ~/.ssh/deploy_key -o StrictHostKeyChecking=no \
+          ssh -i ~/.ssh/deploy_key -o StrictHostKeyChecking=no -o LogLevel=ERROR \
             "$SERVER_USER@$SERVER_HOST" 'bash -se' <<'REMOTE'
           set -euo pipefail
           cd /home/recode
@@ -144,7 +144,7 @@ jobs:
       - name: Wait until healthy
         if: steps.guard.outputs.go == '1'
         run: |
-          ssh -i ~/.ssh/deploy_key -o StrictHostKeyChecking=no \
+          ssh -i ~/.ssh/deploy_key -o StrictHostKeyChecking=no -o LogLevel=ERROR \
             "$SERVER_USER@$SERVER_HOST" 'bash -se' <<'REMOTE'
           set -euo pipefail
           for i in $(seq 1 60); do
@@ -169,7 +169,7 @@ jobs:
       - name: Deploy demo instance
         if: steps.guard.outputs.go == '1'
         run: |
-          SSH="ssh -i $HOME/.ssh/deploy_key -o StrictHostKeyChecking=no"
+          SSH="ssh -i $HOME/.ssh/deploy_key -o StrictHostKeyChecking=no -o LogLevel=ERROR"
           if ! $SSH "$SERVER_USER@$SERVER_HOST" "test -f $DEPLOY_PATH/demo/demo.env"; then
             echo "::warning::服务器还没配置演示站（scripts/setup-demo-server.sh），跳过。"
             exit 0
