@@ -152,3 +152,47 @@ jobs:
           tail -40 /home/recode/logs/recode.err.log || true
           exit 1
           REMOTE
+
+      # Public demo (DEMO_MODE=1, demo.recode.devwiles.online): the same build in
+      # its own directory, database, port and systemd unit. It only holds
+      # throwaway sandboxes, so it is migrated without a backup. Runs after the
+      # real site is healthy, so a demo failure never holds the real site back.
+      # Skipped until scripts/setup-demo-server.sh has been run on the server.
+      - name: Deploy demo instance
+        if: steps.guard.outputs.go == '1'
+        run: |
+          SSH="ssh -i $HOME/.ssh/deploy_key -o StrictHostKeyChecking=no"
+          if ! $SSH "$SERVER_USER@$SERVER_HOST" "test -f $DEPLOY_PATH/demo/demo.env"; then
+            echo "::warning::服务器还没配置演示站（scripts/setup-demo-server.sh），跳过。"
+            exit 0
+          fi
+
+          rsync -az --delete -e "$SSH" payload/ "$SERVER_USER@$SERVER_HOST:$DEPLOY_PATH/demo/staging/"
+
+          $SSH "$SERVER_USER@$SERVER_HOST" 'bash -se' <<'REMOTE'
+          set -euo pipefail
+          cd /home/recode/demo
+
+          set -a; . /home/recode/demo/demo.env; set +a
+
+          node /home/recode/tools/node_modules/prisma/build/index.js migrate deploy \
+            --schema /home/recode/demo/staging/prisma/schema.prisma
+
+          rm -rf app.prev
+          [ -d app ] && mv app app.prev
+          cp -a staging app
+
+          sudo -n /usr/bin/systemctl restart recode-demo
+
+          for i in $(seq 1 60); do
+            code=$(curl -s -o /dev/null -w '%{http_code}' "http://127.0.0.1:3201/login" || true)
+            if [ "$code" = "200" ]; then
+              echo "demo healthy after ${i}s (/login -> 200)"
+              exit 0
+            fi
+            sleep 1
+          done
+          echo "::error::演示站在 60 秒内未就绪"
+          tail -40 /home/recode/demo/logs/demo.err.log || true
+          exit 1
+          REMOTE

@@ -8,6 +8,7 @@ import { verifyPassword } from "@/lib/password";
 import { getRequestContext } from "@/lib/auth";
 import { normalizeEmail, signIn } from "@/lib/accounts";
 import { SESSION_COOKIE } from "@/lib/session";
+import { isDemoMode } from "@/lib/demo";
 
 import type { LoginProps, LoginResult } from "@/types";
 
@@ -42,6 +43,9 @@ export const login = async ({
   remember,
 }: LoginProps): Promise<LoginResult> => {
   const name = username.trim();
+
+  // Sandboxes have no passwords; the only way in is the one-click demo button
+  if (isDemoMode) return { error: "BAD_CREDENTIALS" };
 
   if (!name || !password) {
     return { error: "EMPTY_FIELDS" };

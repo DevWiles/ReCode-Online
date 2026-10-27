@@ -1,6 +1,7 @@
 import { randomInt } from "node:crypto";
 
 import { prisma } from "@/lib/db";
+import { isDemoMode } from "@/lib/demo";
 import { sendMail } from "@/lib/mail";
 import { bannerAttachment, buildCodeMail } from "@/lib/mail/code-template";
 import { hashPassword, verifyPassword } from "@/lib/password";
@@ -38,6 +39,9 @@ export const sendEmailCode = async ({
   username?: string;
   ip: string;
 }): Promise<{ ok: true } | { error: SendCodeError }> => {
+  // The demo instance has no mail server and no real accounts to recover
+  if (isDemoMode) return { error: "MAIL_FAILED" };
+
   const latest = await prisma.emailCode.findFirst({
     where: { email, purpose },
     orderBy: { createdAt: "desc" },

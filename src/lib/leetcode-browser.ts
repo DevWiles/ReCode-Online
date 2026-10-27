@@ -2,6 +2,8 @@ import { existsSync } from "node:fs";
 
 import type { Page } from "playwright-core";
 
+import { isDemoMode } from "@/lib/demo";
+
 import type { LeetCodeCodeSnippet, LeetCodeQuestionData } from "@/types";
 
 /**
@@ -65,6 +67,9 @@ const withProblemPage = async <T>(
   label: string,
   read: (page: Page) => Promise<T | null>
 ): Promise<T | null> => {
+  // Public visitors could otherwise launch a headless Chrome per click
+  if (isDemoMode) return null;
+
   const executablePath = findChrome();
   if (!executablePath) {
     console.warn("LeetCode browser fetch skipped: no Chrome binary found");
