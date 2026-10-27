@@ -41,47 +41,24 @@ export const TRANSLATIONS = {
     },
     challenge: {
       title: '一题多解',
-      score: '得分',
-      streak: '连击',
-      rounds: '已答',
-      left: '剩余',
-      emptyTitle: '还没有可以挑战的题',
-      emptyDescription: '给题目添加 2 种及以上的解法后，它就会进入挑战题库。',
-      goQuestions: '去题目列表',
-      poolSize: '题库里有 {{count}} 道多解题',
-      rule4: '挑战结果不影响每日复习的熟练度和复习时间。',
-      best: '最高分',
-      start: '开始挑战',
-      openProblem: '打开题目',
-      roundScore: '本轮 +{{score}}',
-      perfectBonus: '完美！{{streak}} 连击 +{{bonus}}',
+      subtitle: '随机抽一道有多种解法的题，用列出的每种解法去力扣重做一遍。想练就来，没有截止时间。',
+      solutionsLabel: '{{count}} 种解法',
+      rateTitle: '这几种解法你都还记得吗？',
+      remembered: '记得',
+      forgot: '不记得',
+      left: '剩余 {{count}} 道',
       skip: '换一题',
-      end: '结束挑战',
-      next: '下一题',
-      finish: '看结算',
-      allDone: '题库全部挑战完了',
-      runOver: '本局结束',
-      newRecord: '新纪录！',
-      perfectRounds: '完美轮数',
-      bestStreak: '最高连击',
-      again: '再来一局',
-      solutionN: '解法 {{n}}',
+      end: '结束本局',
+      streakToast: '连续记得 {{count}} 道！',
       drawFailed: '抽题失败，请重试',
-      subtitle: '随机抽一道有多种解法的题，按给出的解法逐个去力扣重新做一遍。想玩就来，没有截止时间。',
-      rule1: '每轮随机抽一道，这一局里不会重复。每种解法都写出了名字，点「去力扣做」用这个方法重做一遍，回来判断做没做出来。',
-      rule2: '直接做出来 +{{cold}}，偷看了自己保存的代码再做出来 +{{hinted}}，没做出来不得分。',
-      rule3: '一道题的解法全部做出来算「完美」，连续完美每次额外 +{{bonus}} × 连击数。',
-      prompt: '这道题有 {{count}} 种解法，逐个去力扣用对应的方法做一遍',
-      roundHint: '每种解法都判断完后，本轮结算',
-      solveOnLeetCode: '去力扣做',
-      peekCode: '偷看代码',
-      viewCode: '看代码',
-      hideCode: '收起代码',
-      peekTitle: '判断前看了代码，做出来只得 {{points}} 分',
-      unnamed: '未命名解法',
-      missed: '没做出来',
-      got: '做出来了',
-      recallRate: '完成率',
+      emptyTitle: '还没有可以挑战的题',
+      emptyDescription: '给题目添加 2 种及以上的解法后，它就会进入一题多解题库。',
+      goQuestions: '去题目列表',
+      allDone: '题库全部过完了',
+      runOver: '本局结束',
+      rememberRate: '记得率',
+      bestStreak: '最高连续记得',
+      again: '再来一局',
     },
     todayFocus: {
       title: '今日焦点',
@@ -294,48 +271,25 @@ export const TRANSLATIONS = {
       close: 'Close',
     },
     challenge: {
-      title: 'Multi-Solution Challenge',
-      score: 'Score',
-      streak: 'Streak',
-      rounds: 'Rounds',
-      left: 'Left',
-      emptyTitle: 'Nothing to challenge yet',
-      emptyDescription: 'Give a question 2 or more solutions and it joins the challenge pool.',
-      goQuestions: 'Go to questions',
-      poolSize: '{{count}} multi-solution questions in the pool',
-      rule4: 'Challenge results never change your daily review schedule or mastery.',
-      best: 'Best',
-      start: 'Start',
-      openProblem: 'Open problem',
-      roundScore: 'Round +{{score}}',
-      perfectBonus: 'Perfect! {{streak}} streak +{{bonus}}',
+      title: 'Multi-Solution',
+      subtitle: 'Draw a random question with several solutions and redo each listed approach on LeetCode. No deadlines, practice whenever.',
+      solutionsLabel: '{{count}} solutions',
+      rateTitle: 'Do you still remember all of these solutions?',
+      remembered: 'Remembered',
+      forgot: 'Forgot',
+      left: '{{count}} left',
       skip: 'Skip',
       end: 'End run',
-      next: 'Next',
-      finish: 'See results',
-      allDone: 'You cleared the whole pool',
+      streakToast: '{{count}} in a row!',
+      drawFailed: 'Failed to draw a question, try again',
+      emptyTitle: 'Nothing to practice yet',
+      emptyDescription: 'Give a question 2 or more solutions and it joins the multi-solution pool.',
+      goQuestions: 'Go to questions',
+      allDone: 'You went through the whole pool',
       runOver: 'Run over',
-      newRecord: 'New record!',
-      perfectRounds: 'Perfect rounds',
+      rememberRate: 'Remembered',
       bestStreak: 'Best streak',
       again: 'Play again',
-      solutionN: 'Solution {{n}}',
-      drawFailed: 'Failed to draw a question, try again',
-      subtitle: 'Draw a random question with several solutions and redo each one on LeetCode. No deadlines, play whenever.',
-      rule1: 'Each round draws a random question, never repeating within a run. Every solution is named: hit "Solve on LeetCode", redo it that way, then judge yourself.',
-      rule2: 'Solved cold +{{cold}}, after peeking at your saved code +{{hinted}}, not solved 0.',
-      rule3: 'Solve every approach for a perfect round; consecutive perfect rounds add +{{bonus}} × streak.',
-      prompt: 'This question has {{count}} solutions. Redo each one on LeetCode',
-      roundHint: 'Judge every solution to finish the round',
-      solveOnLeetCode: 'Solve on LeetCode',
-      peekCode: 'Peek at code',
-      viewCode: 'View code',
-      hideCode: 'Hide code',
-      peekTitle: 'Peeking before judging: solving then scores {{points}}',
-      unnamed: 'Unnamed solution',
-      missed: 'Not solved',
-      got: 'Solved',
-      recallRate: 'Solve rate',
     },
     todayFocus: {
       title: "Today's Focus",
@@ -545,46 +499,23 @@ export type TranslationKeys =
   | 'home.masteryRate'
   | 'challenge.title'
   | 'challenge.subtitle'
-  | 'challenge.score'
-  | 'challenge.streak'
-  | 'challenge.rounds'
+  | 'challenge.solutionsLabel'
+  | 'challenge.rateTitle'
+  | 'challenge.remembered'
+  | 'challenge.forgot'
   | 'challenge.left'
+  | 'challenge.skip'
+  | 'challenge.end'
+  | 'challenge.streakToast'
+  | 'challenge.drawFailed'
   | 'challenge.emptyTitle'
   | 'challenge.emptyDescription'
   | 'challenge.goQuestions'
-  | 'challenge.poolSize'
-  | 'challenge.rule1'
-  | 'challenge.rule2'
-  | 'challenge.rule3'
-  | 'challenge.rule4'
-  | 'challenge.best'
-  | 'challenge.start'
-  | 'challenge.openProblem'
-  | 'challenge.prompt'
-  | 'challenge.roundScore'
-  | 'challenge.perfectBonus'
-  | 'challenge.roundHint'
-  | 'challenge.skip'
-  | 'challenge.end'
-  | 'challenge.next'
-  | 'challenge.finish'
   | 'challenge.allDone'
   | 'challenge.runOver'
-  | 'challenge.newRecord'
-  | 'challenge.recallRate'
-  | 'challenge.perfectRounds'
+  | 'challenge.rememberRate'
   | 'challenge.bestStreak'
   | 'challenge.again'
-  | 'challenge.solutionN'
-  | 'challenge.missed'
-  | 'challenge.got'
-  | 'challenge.drawFailed'
-  | 'challenge.solveOnLeetCode'
-  | 'challenge.peekCode'
-  | 'challenge.viewCode'
-  | 'challenge.hideCode'
-  | 'challenge.peekTitle'
-  | 'challenge.unnamed'
   | 'masterybar.title'
   | 'masterybar.questions'
   | 'masterybar.clickHint'

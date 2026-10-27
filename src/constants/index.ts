@@ -15,7 +15,7 @@ export const SIDEBAR_NAV: NavSection[] = [
       },
       { en_name: "Review", zh_name: "复习", icon: BarChart2, path: "/review" },
       {
-        en_name: "Challenge",
+        en_name: "Multi-Solution",
         zh_name: "一题多解",
         icon: Swords,
         path: "/challenge",
