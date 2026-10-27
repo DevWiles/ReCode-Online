@@ -50,7 +50,7 @@
 **公开演示站**
 
 - `DEMO_MODE=1` 时运行为演示站：访客一键获得独立的沙盒账号（预置示例题目，6 小时后自动清理）。
-- 在线体验：<https://demo.recode.devwiles.online>
+- 在线体验：<https://demo.recode.devwiles.online>（按住 Ctrl / ⌘ 点击可在新标签页打开）
 
 ---
 

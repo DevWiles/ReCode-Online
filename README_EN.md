@@ -50,7 +50,7 @@ At first I only wanted to run ReCode on a server, for two reasons:
 **Public demo**
 
 - With `DEMO_MODE=1` the app runs as a demo: each visitor gets a private sandbox account with sample problems, cleaned up after 6 hours.
-- Try it: <https://demo.recode.devwiles.online>
+- Try it: <https://demo.recode.devwiles.online> (Ctrl / ⌘ + click to open in a new tab)
 
 ---
 
