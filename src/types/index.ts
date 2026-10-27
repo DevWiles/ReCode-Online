@@ -119,6 +119,20 @@ export type AccountError =
   | "BAD_PASSWORD"
   | "WRONG_PASSWORD";
 
+// A successful sign-in shown on the account page
+export interface AccountLogin {
+  id: string;
+  ip: string;
+  browser: string;
+  os: string;
+  // Desktop / Mobile / Tablet / Bot / Unknown
+  device: string;
+  // Preformatted on the server to keep client and server renders identical
+  time: string;
+  // Same IP, browser and OS as the request viewing the page
+  current: boolean;
+}
+
 // login log interfaces
 export type LoginLogFilter = "all" | "success" | "failed";
 
