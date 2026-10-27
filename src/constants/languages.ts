@@ -41,15 +41,25 @@ export const TRANSLATIONS = {
     },
     challenge: {
       title: '一题多解',
-      subtitle: '随机抽一道有多种解法的题，用列出的每种解法去力扣重做一遍。想练就来，没有截止时间。',
-      solutionsLabel: '{{count}} 种解法',
-      rateTitle: '这几种解法你都还记得吗？',
+      subtitle: '随机抽一道有多种解法的题，逐个复习它的每种解法。想练就来，没有截止时间。',
+      prompt: '这道题有 {{count}} 种解法，逐个复习',
+      solutionN: '解法 {{n}}',
+      unnamed: '未命名解法',
+      rateTitle: '这个解法你还记得吗？',
+      openProblem: '打开题目',
+      progress: '已复习 {{rated}}/{{count}} 种解法',
+      questionDone: '本题完成：记得 {{remembered}}/{{count}} 种解法',
+      next: '下一题',
+      finish: '看结算',
+      questions: '已复习题目',
+      rememberedSolutions: '记得的解法',
+      forgotSolutions: '不记得的解法',
       remembered: '记得',
       forgot: '不记得',
       left: '剩余 {{count}} 道',
       skip: '换一题',
       end: '结束本局',
-      streakToast: '连续记得 {{count}} 道！',
+      streakToast: '连续记得 {{count}} 种解法！',
       drawFailed: '抽题失败，请重试',
       emptyTitle: '还没有可以挑战的题',
       emptyDescription: '给题目添加 2 种及以上的解法后，它就会进入一题多解题库。',
@@ -272,15 +282,25 @@ export const TRANSLATIONS = {
     },
     challenge: {
       title: 'Multi-Solution',
-      subtitle: 'Draw a random question with several solutions and redo each listed approach on LeetCode. No deadlines, practice whenever.',
-      solutionsLabel: '{{count}} solutions',
-      rateTitle: 'Do you still remember all of these solutions?',
+      subtitle: 'Draw a random question with several solutions and review each of its solutions. No deadlines, practice whenever.',
+      prompt: 'This question has {{count}} solutions. Review each one',
+      solutionN: 'Solution {{n}}',
+      unnamed: 'Unnamed solution',
+      rateTitle: 'Do you still remember this solution?',
+      openProblem: 'Open problem',
+      progress: '{{rated}}/{{count}} solutions reviewed',
+      questionDone: 'Done: remembered {{remembered}}/{{count}} solutions',
+      next: 'Next question',
+      finish: 'See results',
+      questions: 'Questions',
+      rememberedSolutions: 'Remembered',
+      forgotSolutions: 'Forgot',
       remembered: 'Remembered',
       forgot: 'Forgot',
       left: '{{count}} left',
       skip: 'Skip',
       end: 'End run',
-      streakToast: '{{count}} in a row!',
+      streakToast: '{{count}} solutions in a row!',
       drawFailed: 'Failed to draw a question, try again',
       emptyTitle: 'Nothing to practice yet',
       emptyDescription: 'Give a question 2 or more solutions and it joins the multi-solution pool.',
@@ -499,8 +519,18 @@ export type TranslationKeys =
   | 'home.masteryRate'
   | 'challenge.title'
   | 'challenge.subtitle'
-  | 'challenge.solutionsLabel'
+  | 'challenge.prompt'
+  | 'challenge.solutionN'
+  | 'challenge.unnamed'
   | 'challenge.rateTitle'
+  | 'challenge.openProblem'
+  | 'challenge.progress'
+  | 'challenge.questionDone'
+  | 'challenge.next'
+  | 'challenge.finish'
+  | 'challenge.questions'
+  | 'challenge.rememberedSolutions'
+  | 'challenge.forgotSolutions'
   | 'challenge.remembered'
   | 'challenge.forgot'
   | 'challenge.left'

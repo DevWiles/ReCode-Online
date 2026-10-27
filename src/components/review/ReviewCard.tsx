@@ -2,7 +2,7 @@ import { motion } from 'framer-motion';
 import { useTranslation } from '@/hooks/useTranslation';
 import { getDifficultyColor } from '@/hooks';
 
-import { ExternalLink, Calendar, Check, X } from 'lucide-react';
+import { ExternalLink, Calendar } from 'lucide-react';
 
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
@@ -20,9 +20,6 @@ interface ReviewCardProps {
   onCancel: () => void;
   onRate: (score: number) => void;
   onPreview: () => void;
-  // Multi-solution challenge: list the solution names and rate with just
-  // remembered (1) / forgot (0) instead of the 0-5 scale
-  binary?: boolean;
 }
 
 const RateButton = ({
@@ -57,7 +54,6 @@ export const ReviewCard = ({
   onCancel,
   onRate,
   onPreview,
-  binary = false,
 }: ReviewCardProps) => {
   const { t } = useTranslation();
 
@@ -123,30 +119,6 @@ export const ReviewCard = ({
               Lv.{task.masteryLevel}
             </span>
           </div>
-
-          {binary && task.submissions && (
-            <div className="flex flex-wrap items-center gap-2 pt-1">
-              <span className="text-xs font-bold text-gray-400 uppercase tracking-wider mr-1">
-                {t('challenge.solutionsLabel').replace(
-                  '{{count}}',
-                  String(task.submissions.length),
-                )}
-              </span>
-              {task.submissions.map((solution, index) => (
-                <span
-                  key={solution.id}
-                  data-testid="solution-name"
-                  className="px-3 py-1 rounded-lg bg-orange-50 border border-orange-100 text-sm font-semibold text-gray-700"
-                >
-                  {solution.label.trim() ||
-                    t('solutionSection.untitled').replace(
-                      '{{index}}',
-                      String(index + 1),
-                    )}
-                </span>
-              ))}
-            </div>
-          )}
         </div>
 
         {/* Right Action Area */}
@@ -177,9 +149,7 @@ export const ReviewCard = ({
             <div className="flex flex-col items-end gap-3 w-full animate-in fade-in slide-in-from-bottom-4 duration-300">
               <div className="flex items-center justify-between w-full mb-1">
                 <p className="text-sm font-bold text-gray-900">
-                  {binary
-                    ? t('challenge.rateTitle')
-                    : t('reviewCard.rateTitle')}
+                  {t('reviewCard.rateTitle')}
                 </p>
                 <Button
                   variant="ghost"
@@ -192,92 +162,67 @@ export const ReviewCard = ({
                 </Button>
               </div>
 
-              {binary ? (
-                <div className="grid grid-cols-2 gap-2 w-full">
-                  <button
-                    onClick={() => onRate(0)}
-                    disabled={isSubmitting}
-                    className="flex flex-col items-center justify-center gap-1 h-20 rounded-2xl border transition-all duration-200 active:scale-95 disabled:opacity-50 disabled:cursor-not-allowed bg-rose-50 text-rose-600 border-rose-100 hover:bg-rose-500 hover:text-white hover:shadow-lg hover:shadow-rose-200"
-                  >
-                    <X size={22} strokeWidth={3} />
-                    <span className="text-sm font-bold">
-                      {t('challenge.forgot')}
-                    </span>
-                  </button>
-                  <button
-                    onClick={() => onRate(1)}
-                    disabled={isSubmitting}
-                    className="flex flex-col items-center justify-center gap-1 h-20 rounded-2xl border transition-all duration-200 active:scale-95 disabled:opacity-50 disabled:cursor-not-allowed bg-emerald-50 text-emerald-600 border-emerald-100 hover:bg-emerald-500 hover:text-white hover:shadow-lg hover:shadow-emerald-200"
-                  >
-                    <Check size={22} strokeWidth={3} />
-                    <span className="text-sm font-bold">
-                      {t('challenge.remembered')}
-                    </span>
-                  </button>
-                </div>
-              ) : (
-                <div className="grid grid-cols-3 sm:grid-cols-6 gap-2 w-full">
-                  {/* Fail */}
-                  <RateButton
-                    score={0}
-                    label={t('reviewCard.rateFail')}
-                    colorClass="bg-rose-50 text-rose-600 border-rose-100 hover:bg-rose-500 hover:text-white hover:shadow-lg hover:shadow-rose-200"
-                    onClick={() => onRate(0)}
-                    disabled={isSubmitting}
-                    title={t('reviewCard.titleFail')}
-                  />
+              <div className="grid grid-cols-3 sm:grid-cols-6 gap-2 w-full">
+                {/* Fail */}
+                <RateButton
+                  score={0}
+                  label={t('reviewCard.rateFail')}
+                  colorClass="bg-rose-50 text-rose-600 border-rose-100 hover:bg-rose-500 hover:text-white hover:shadow-lg hover:shadow-rose-200"
+                  onClick={() => onRate(0)}
+                  disabled={isSubmitting}
+                  title={t('reviewCard.titleFail')}
+                />
 
-                  {/* Hard */}
-                  <RateButton
-                    score={1}
-                    label={t('reviewCard.rateHard')}
-                    colorClass="bg-orange-50 text-orange-600 border-orange-100 hover:bg-orange-500 hover:text-white hover:shadow-lg hover:shadow-orange-200"
-                    onClick={() => onRate(1)}
-                    disabled={isSubmitting}
-                    title={t('reviewCard.titleHard')}
-                  />
+                {/* Hard */}
+                <RateButton
+                  score={1}
+                  label={t('reviewCard.rateHard')}
+                  colorClass="bg-orange-50 text-orange-600 border-orange-100 hover:bg-orange-500 hover:text-white hover:shadow-lg hover:shadow-orange-200"
+                  onClick={() => onRate(1)}
+                  disabled={isSubmitting}
+                  title={t('reviewCard.titleHard')}
+                />
 
-                  {/* Medium */}
-                  <RateButton
-                    score={2}
-                    label={t('reviewCard.rateMedium')}
-                    colorClass="bg-amber-50 text-amber-600 border-amber-100 hover:bg-amber-500 hover:text-white hover:shadow-lg hover:shadow-amber-200"
-                    onClick={() => onRate(2)}
-                    disabled={isSubmitting}
-                    title={t('reviewCard.titleMedium')}
-                  />
+                {/* Medium */}
+                <RateButton
+                  score={2}
+                  label={t('reviewCard.rateMedium')}
+                  colorClass="bg-amber-50 text-amber-600 border-amber-100 hover:bg-amber-500 hover:text-white hover:shadow-lg hover:shadow-amber-200"
+                  onClick={() => onRate(2)}
+                  disabled={isSubmitting}
+                  title={t('reviewCard.titleMedium')}
+                />
 
-                  {/* Good */}
-                  <RateButton
-                    score={3}
-                    label={t('reviewCard.rateGood')}
-                    colorClass="bg-yellow-50 text-yellow-600 border-yellow-100 hover:bg-yellow-500 hover:text-white hover:shadow-lg hover:shadow-yellow-200"
-                    onClick={() => onRate(3)}
-                    disabled={isSubmitting}
-                    title={t('reviewCard.titleGood')}
-                  />
+                {/* Good */}
+                <RateButton
+                  score={3}
+                  label={t('reviewCard.rateGood')}
+                  colorClass="bg-yellow-50 text-yellow-600 border-yellow-100 hover:bg-yellow-500 hover:text-white hover:shadow-lg hover:shadow-yellow-200"
+                  onClick={() => onRate(3)}
+                  disabled={isSubmitting}
+                  title={t('reviewCard.titleGood')}
+                />
 
-                  {/* Great */}
-                  <RateButton
-                    score={4}
-                    label={t('reviewCard.rateGreat')}
-                    colorClass="bg-blue-50 text-blue-600 border-blue-100 hover:bg-blue-500 hover:text-white hover:shadow-lg hover:shadow-blue-200"
-                    onClick={() => onRate(4)}
-                    disabled={isSubmitting}
-                    title={t('reviewCard.titleGreat')}
-                  />
+                {/* Great */}
+                <RateButton
+                  score={4}
+                  label={t('reviewCard.rateGreat')}
+                  colorClass="bg-blue-50 text-blue-600 border-blue-100 hover:bg-blue-500 hover:text-white hover:shadow-lg hover:shadow-blue-200"
+                  onClick={() => onRate(4)}
+                  disabled={isSubmitting}
+                  title={t('reviewCard.titleGreat')}
+                />
 
-                  {/* Easy */}
-                  <RateButton
-                    score={5}
-                    label={t('reviewCard.rateEasy')}
-                    colorClass="bg-emerald-50 text-emerald-600 border-emerald-100 hover:bg-emerald-500 hover:text-white hover:shadow-lg hover:shadow-emerald-200"
-                    onClick={() => onRate(5)}
-                    disabled={isSubmitting}
-                    title={t('reviewCard.titleEasy')}
-                  />
-                </div>
-              )}
+                {/* Easy */}
+                <RateButton
+                  score={5}
+                  label={t('reviewCard.rateEasy')}
+                  colorClass="bg-emerald-50 text-emerald-600 border-emerald-100 hover:bg-emerald-500 hover:text-white hover:shadow-lg hover:shadow-emerald-200"
+                  onClick={() => onRate(5)}
+                  disabled={isSubmitting}
+                  title={t('reviewCard.titleEasy')}
+                />
+              </div>
             </div>
           )}
         </div>
