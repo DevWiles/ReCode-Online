@@ -14,6 +14,7 @@ import avatar from "../../../public/images/avatar.png";
 
 import {
   BadgeCheck,
+  Download,
   Monitor,
   Smartphone,
   Tablet,
@@ -55,6 +56,10 @@ const COPY = {
     loginsTitle: "最近登录",
     loginsEmpty: "暂无登录记录",
     thisDevice: "当前设备",
+    dataTitle: "我的数据",
+    exportTitle: "导出数据",
+    exportSub: "下载全部题目、复习进度和解法代码（JSON），自己留一份备份",
+    exportButton: "导出",
     dangerTitle: "危险操作",
     devTitle: "退出所有设备",
     devSub: "怀疑账号泄露时使用：所有设备（包括这台）都会立即退出登录",
@@ -106,6 +111,10 @@ const COPY = {
     loginsTitle: "Recent sign-ins",
     loginsEmpty: "No sign-ins yet",
     thisDevice: "This device",
+    dataTitle: "Your data",
+    exportTitle: "Export data",
+    exportSub: "Download every problem, review progress and solution code as JSON to keep a backup",
+    exportButton: "Export",
     dangerTitle: "Danger zone",
     devTitle: "Sign out everywhere",
     devSub: "If the account may be compromised: every device, this one included, is signed out at once",
@@ -541,6 +550,37 @@ export default function AccountClient({
               </ul>
             )}
           </div>
+        </div>
+      </div>
+
+      {/* Data */}
+      <div className="space-y-3">
+        <p className="px-1 text-xs font-bold uppercase tracking-widest text-gray-400">
+          {t.dataTitle}
+        </p>
+        <div
+          className={cn(
+            card,
+            "flex flex-col gap-4 p-6 sm:flex-row sm:items-center"
+          )}
+        >
+          <div className="flex-1">
+            <p className="text-sm font-bold text-gray-900">{t.exportTitle}</p>
+            <p className="mt-1 text-sm text-gray-500">{t.exportSub}</p>
+          </div>
+          {/* The response carries Content-Disposition, so this downloads */}
+          <a
+            href="/api/export"
+            download
+            data-testid="export-data"
+            className={cn(
+              secondary,
+              "inline-flex h-9 items-center gap-1.5"
+            )}
+          >
+            <Download size={14} />
+            {t.exportButton}
+          </a>
         </div>
       </div>
 
