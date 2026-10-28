@@ -1,6 +1,6 @@
 'use client';
 
-import { ArrowUpRight, TrendingUp, TrendingDown, Minus } from 'lucide-react';
+import { TrendingUp, TrendingDown, Minus } from 'lucide-react';
 import { motion } from 'framer-motion';
 import { cn } from '@/lib/utils';
 
@@ -42,18 +42,11 @@ export function StatCard({
         </div>
       )}
 
-      {/* title + jump button */}
-      <div className="flex justify-between items-start z-10 relative">
+      {/* title; h-10 keeps the card as tall as when it had a corner button */}
+      <div className="flex items-center h-10 z-10 relative">
         <span className="font-semibold text-lg text-white/90 tracking-wide">
           {title}
         </span>
-
-        <motion.button
-          whileHover={{ scale: 1.1, rotate: 45 }}
-          className="p-2.5 rounded-full border border-white/20 bg-white/10 text-white backdrop-blur-md cursor-pointer hover:bg-white/20 transition-colors"
-        >
-          <ArrowUpRight size={20} />
-        </motion.button>
       </div>
 
       {/* big number */}
