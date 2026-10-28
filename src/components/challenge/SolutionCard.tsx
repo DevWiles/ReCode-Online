@@ -4,7 +4,6 @@ import { motion } from 'framer-motion';
 
 import { useTranslation } from '@/hooks/useTranslation';
 import { cn } from '@/lib/utils';
-import { itemVariants } from '@/animations/reviewAnimations';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 
@@ -46,7 +45,6 @@ export const SolutionCard = ({
   return (
     <motion.div
       layout
-      variants={itemVariants}
       data-testid="solution-card"
       className={cn(
         'group relative backdrop-blur-xl rounded-[2rem] p-6 md:p-8 transition-all duration-300 border',
