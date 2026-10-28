@@ -243,34 +243,64 @@ export default function ChallengeClient({
           </div>
 
           {!noPool && !ended && (
-            <div
-              data-testid="scoreboard"
-              className="flex items-center gap-4 bg-white/80 backdrop-blur-md text-gray-600 px-5 py-2.5 rounded-2xl text-sm font-bold border border-gray-200/60 shadow-sm whitespace-nowrap"
-            >
-              <span>
-                {t('challenge.remembered')}{' '}
-                <span className="text-emerald-600" data-testid="remembered">
-                  {stats.remembered}
+            <div className="flex flex-col items-end gap-2">
+              {/* Run controls; skip only before anything is rated, and it
+                  keeps its place so the end button never shifts */}
+              <div className="flex items-center gap-1">
+                <Button
+                  variant="ghost"
+                  size="sm"
+                  onClick={() => draw(seen)}
+                  disabled={drawing}
+                  className={cn(
+                    'text-gray-400 hover:text-gray-900 rounded-xl gap-1.5',
+                    ratedCount > 0 && 'invisible',
+                  )}
+                >
+                  <Shuffle size={14} /> {t('challenge.skip')}
+                </Button>
+                <Button
+                  variant="ghost"
+                  size="sm"
+                  onClick={() => {
+                    lockStage();
+                    setEnded('manual');
+                  }}
+                  disabled={drawing}
+                  className="text-gray-400 hover:text-gray-900 rounded-xl"
+                >
+                  {t('challenge.end')}
+                </Button>
+              </div>
+              <div
+                data-testid="scoreboard"
+                className="flex items-center gap-4 bg-white/80 backdrop-blur-md text-gray-600 px-5 py-2.5 rounded-2xl text-sm font-bold border border-gray-200/60 shadow-sm whitespace-nowrap"
+              >
+                <span>
+                  {t('challenge.remembered')}{' '}
+                  <span className="text-emerald-600" data-testid="remembered">
+                    {stats.remembered}
+                  </span>
                 </span>
-              </span>
-              <span>
-                {t('challenge.forgot')}{' '}
-                <span className="text-rose-500" data-testid="forgot">
-                  {stats.forgot}
+                <span>
+                  {t('challenge.forgot')}{' '}
+                  <span className="text-rose-500" data-testid="forgot">
+                    {stats.forgot}
+                  </span>
                 </span>
-              </span>
-              <span className="flex items-center gap-1" data-testid="streak">
-                <Flame
-                  size={16}
-                  className={
-                    stats.streak > 0 ? 'text-orange-500' : 'text-gray-300'
-                  }
-                />
-                {stats.streak}
-              </span>
-              <span className="text-gray-400">
-                {fill(t('challenge.left'), { count: remaining })}
-              </span>
+                <span className="flex items-center gap-1" data-testid="streak">
+                  <Flame
+                    size={16}
+                    className={
+                      stats.streak > 0 ? 'text-orange-500' : 'text-gray-300'
+                    }
+                  />
+                  {stats.streak}
+                </span>
+                <span className="text-gray-400">
+                  {fill(t('challenge.left'), { count: remaining })}
+                </span>
+              </div>
             </div>
           )}
         </div>
@@ -382,43 +412,18 @@ export default function ChallengeClient({
                         count: solutions.length,
                       })}
                 </p>
-                <div className="flex items-center gap-2">
-                  {ratedCount === 0 && (
-                    <Button
-                      variant="ghost"
-                      size="sm"
-                      onClick={() => draw(seen)}
-                      disabled={drawing}
-                      className="text-gray-400 hover:text-gray-900 rounded-xl gap-1.5"
-                    >
-                      <Shuffle size={14} /> {t('challenge.skip')}
-                    </Button>
-                  )}
+                {questionDone && (
                   <Button
-                    variant="ghost"
-                    size="sm"
-                    onClick={() => {
-                      lockStage();
-                      setEnded('manual');
-                    }}
+                    onClick={() => draw(seen)}
                     disabled={drawing}
-                    className="text-gray-400 hover:text-gray-900 rounded-xl"
+                    className="h-11 px-6 rounded-2xl bg-gray-900 hover:bg-black font-bold gap-2"
                   >
-                    {t('challenge.end')}
+                    {remaining > 0
+                      ? t('challenge.next')
+                      : t('challenge.finish')}
+                    <ArrowRight size={16} />
                   </Button>
-                  {questionDone && (
-                    <Button
-                      onClick={() => draw(seen)}
-                      disabled={drawing}
-                      className="h-11 px-6 rounded-2xl bg-gray-900 hover:bg-black font-bold gap-2"
-                    >
-                      {remaining > 0
-                        ? t('challenge.next')
-                        : t('challenge.finish')}
-                      <ArrowRight size={16} />
-                    </Button>
-                  )}
-                </div>
+                )}
               </div>
             </div>
           ) : (
